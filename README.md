@@ -1,5 +1,10 @@
 # Photo Feed
 
+## App Architecture
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/assets/architecture.png" width="400" />
+</p>
 
 # License
 ```
