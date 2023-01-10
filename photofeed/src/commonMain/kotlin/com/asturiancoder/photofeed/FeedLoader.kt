@@ -1,5 +1,7 @@
 package com.asturiancoder.photofeed
 
+typealias LoadFeedResult = Result<List<FeedPhoto>>
+
 interface FeedLoader {
-    fun load(): Result<List<FeedPhoto>>
+    fun load(): LoadFeedResult
 }
