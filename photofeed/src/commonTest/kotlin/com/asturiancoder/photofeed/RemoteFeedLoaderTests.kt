@@ -1,30 +1,10 @@
 package com.asturiancoder.photofeed
 
+import com.asturiancoder.photofeed.feed.api.HttpClient
+import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-class RemoteFeedLoader(
-    private val url: String,
-    private val client: HttpClient,
-) {
-
-    fun load() {
-        client.get(url = url)
-    }
-}
-
-interface HttpClient {
-    fun get(url: String)
-}
-
-class HttpClientSpy : HttpClient {
-    var requestedUrls = mutableListOf<String>()
-
-    override fun get(url: String) {
-        requestedUrls.add(url)
-    }
-}
 
 class RemoteFeedLoaderTests {
 
@@ -63,6 +43,14 @@ class RemoteFeedLoaderTests {
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
+    }
+
+    private class HttpClientSpy : HttpClient {
+        var requestedUrls = mutableListOf<String>()
+
+        override fun get(url: String) {
+            requestedUrls.add(url)
+        }
     }
 
     // endregion
