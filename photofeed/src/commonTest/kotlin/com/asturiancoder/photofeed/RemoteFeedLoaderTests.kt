@@ -2,7 +2,7 @@ package com.asturiancoder.photofeed
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class RemoteFeedLoader(
     private val url: String,
@@ -15,10 +15,10 @@ class RemoteFeedLoader(
 }
 
 class HttpClient {
-    var requestedUrl: String? = null
+    var requestedUrls = mutableListOf<String>()
 
     fun get(url: String) {
-        requestedUrl = url
+        requestedUrls.add(url)
     }
 }
 
@@ -28,7 +28,7 @@ class RemoteFeedLoaderTests {
     fun init_doesNotStartRequestFromUrl() {
         val (_, client) = makeSut()
 
-        assertNull(client.requestedUrl)
+        assertTrue(client.requestedUrls.isEmpty())
     }
 
     @Test
@@ -38,7 +38,18 @@ class RemoteFeedLoaderTests {
 
         sut.load()
 
-        assertEquals(url, client.requestedUrl)
+        assertEquals(listOf(url), client.requestedUrls)
+    }
+
+    @Test
+    fun load_twice_startsRequestFromUrlTwice() {
+        val url = "https://a-given-url.com"
+        val (sut, client) = makeSut(url)
+
+        sut.load()
+        sut.load()
+
+        assertEquals(listOf(url, url), client.requestedUrls)
     }
 
     // region Helpers
