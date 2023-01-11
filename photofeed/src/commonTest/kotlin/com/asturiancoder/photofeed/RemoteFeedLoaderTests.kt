@@ -14,10 +14,14 @@ class RemoteFeedLoader(
     }
 }
 
-class HttpClient {
+interface HttpClient {
+    fun get(url: String)
+}
+
+class HttpClientSpy : HttpClient {
     var requestedUrls = mutableListOf<String>()
 
-    fun get(url: String) {
+    override fun get(url: String) {
         requestedUrls.add(url)
     }
 }
@@ -54,8 +58,8 @@ class RemoteFeedLoaderTests {
 
     // region Helpers
 
-    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClient> {
-        val client = HttpClient()
+    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClientSpy> {
+        val client = HttpClientSpy()
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
