@@ -26,9 +26,7 @@ class RemoteFeedLoaderTests {
 
     @Test
     fun init_doesNotStartRequestFromUrl() {
-        val url = "https://a-url.com"
-        val client = HttpClient()
-        RemoteFeedLoader(url, client)
+        val (_, client) = makeSut()
 
         assertNull(client.requestedUrl)
     }
@@ -36,11 +34,21 @@ class RemoteFeedLoaderTests {
     @Test
     fun load_startsRequestFromUrl() {
         val url = "https://a-given-url.com"
-        val client = HttpClient()
-        val sut = RemoteFeedLoader(url, client)
+        val (sut, client) = makeSut(url)
 
         sut.load()
 
         assertEquals(url, client.requestedUrl)
     }
+
+    // region Helpers
+
+    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClient> {
+        val client = HttpClient()
+        val sut = RemoteFeedLoader(url, client)
+
+        return sut to client
+    }
+
+    // endregion
 }
