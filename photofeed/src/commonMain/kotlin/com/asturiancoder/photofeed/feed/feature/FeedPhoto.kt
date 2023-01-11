@@ -1,4 +1,4 @@
-package com.asturiancoder.photofeed
+package com.asturiancoder.photofeed.feed.feature
 
 data class FeedPhoto(
     val id: String,

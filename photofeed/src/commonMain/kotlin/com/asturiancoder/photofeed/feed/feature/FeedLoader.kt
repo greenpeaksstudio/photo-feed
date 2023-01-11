@@ -1,4 +1,4 @@
-package com.asturiancoder.photofeed
+package com.asturiancoder.photofeed.feed.feature
 
 typealias LoadFeedResult = Result<List<FeedPhoto>>
 
