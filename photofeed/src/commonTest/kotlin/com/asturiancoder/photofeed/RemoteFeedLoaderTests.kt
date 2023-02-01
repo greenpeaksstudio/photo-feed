@@ -3,6 +3,8 @@ package com.asturiancoder.photofeed
 import com.asturiancoder.photofeed.feed.api.HttpClient
 import com.asturiancoder.photofeed.feed.api.HttpResponse
 import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -54,7 +56,7 @@ class RemoteFeedLoaderTests {
 
         val samples = listOf(199, 201, 300, 400, 500)
         samples.forEach { httpCode ->
-            val json = "{[]}"
+            val json = makePhotosJson(listOf())
             client.stubWith(Result.success(HttpResponse(httpCode, json)))
             val receivedResult = sut.load()
 
@@ -73,6 +75,17 @@ class RemoteFeedLoaderTests {
         assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
     }
 
+    @Test
+    fun load_deliversNoItemsOn200HttpResponseWithEmptyJsonList() {
+        val (sut, client) = makeSut()
+
+        val emptyListJson = makePhotosJson(listOf())
+        client.stubWith(Result.success(HttpResponse(code = 200, jsonString = emptyListJson)))
+        val receivedResult = sut.load()
+
+        assertEquals(Result.success(listOf()), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClientStub> {
@@ -80,6 +93,11 @@ class RemoteFeedLoaderTests {
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
+    }
+
+    private fun makePhotosJson(photos: List<Map<String, String>>): String {
+        val root = mapOf("photos" to photos)
+        return Json.encodeToString(root)
     }
 
     private class HttpClientStub : HttpClient {
