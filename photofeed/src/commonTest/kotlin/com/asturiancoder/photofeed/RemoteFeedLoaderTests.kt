@@ -36,20 +36,33 @@ class RemoteFeedLoaderTests {
         assertEquals(listOf(url, url), client.requestedUrls)
     }
 
+    @Test
+    fun load_deliversErrorOnClientError() {
+        val clientError = Exception()
+        val client = HttpClientStub(Result.failure(clientError))
+        val (sut, _) = makeSut(client = client)
+
+        val receivedResult = sut.load()
+
+        assertEquals(Result.failure(RemoteFeedLoader.Error.Connectivity), receivedResult)
+    }
+
     // region Helpers
 
-    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClientSpy> {
-        val client = HttpClientSpy()
+    private fun makeSut(url: String = "https://a-url.com", client: HttpClientStub = HttpClientStub()): Pair<RemoteFeedLoader, HttpClientStub> {
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
     }
 
-    private class HttpClientSpy : HttpClient {
+    private class HttpClientStub(
+        private val stub: Result<Unit> = Result.success(Unit)
+    ) : HttpClient {
         var requestedUrls = mutableListOf<String>()
 
-        override fun get(url: String) {
+        override fun get(url: String): Result<Unit> {
             requestedUrls.add(url)
+            return stub
         }
     }
 
