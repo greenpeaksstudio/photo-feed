@@ -27,16 +27,20 @@ internal class RemoteFeedLoader(
         return result
             .fold(
                 onSuccess = { response ->
-                    try {
-                        val remotePhotos = FeedPhotosMapper.map(response)
-                        Result.success(remotePhotos.toModels())
-                    } catch (e: Exception) {
-                        Result.failure(Error.InvalidData)
-                    }
+                    map(response)
                 }, onFailure = {
                     Result.failure(Error.Connectivity)
                 }
             )
+    }
+
+    private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
+        return try {
+            val remotePhotos = FeedPhotosMapper.map(response)
+            Result.success(remotePhotos.toModels())
+        } catch (e: Exception) {
+            Result.failure(Error.InvalidData)
+        }
     }
 }
 
