@@ -54,12 +54,23 @@ class RemoteFeedLoaderTests {
 
         val samples = listOf(199, 201, 300, 400, 500)
         samples.forEach { httpCode ->
-            client.stubWith(Result.success(HttpResponse(httpCode)))
+            val json = "{[]}"
+            client.stubWith(Result.success(HttpResponse(httpCode, json)))
             val receivedResult = sut.load()
 
             assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
         }
+    }
 
+    @Test
+    fun load_deliversErrorOn200HttpResponseWithInvalidJson() {
+        val invalidJson = "invalidJson"
+        val (sut, client) = makeSut()
+
+        client.stubWith(Result.success(HttpResponse(200, jsonString = invalidJson)))
+        val receivedResult = sut.load()
+
+        assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
     }
 
     // region Helpers
@@ -74,7 +85,8 @@ class RemoteFeedLoaderTests {
     private class HttpClientStub : HttpClient {
         val requestedUrls = mutableListOf<String>()
 
-        private var stub = Result.success(HttpResponse(200))
+        private val response = HttpResponse(code = 200, jsonString = "")
+        private var stub = Result.success(response)
 
         override fun get(url: String): Result<HttpResponse> {
             requestedUrls.add(url)

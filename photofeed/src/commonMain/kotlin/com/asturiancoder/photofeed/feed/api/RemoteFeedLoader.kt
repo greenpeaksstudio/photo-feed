@@ -3,7 +3,8 @@ package com.asturiancoder.photofeed.feed.api
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
 data class HttpResponse(
-    val code: Int
+    val code: Int,
+    val jsonString: String,
 )
 
 internal interface HttpClient {
@@ -27,6 +28,7 @@ internal class RemoteFeedLoader(
             if (response.code != 200) {
                 return Result.failure(Error.InvalidData)
             }
+            return Result.failure(Error.InvalidData)
         }
         return Result.failure(Error.Connectivity)
     }
