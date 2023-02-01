@@ -1,6 +1,7 @@
 package com.asturiancoder.photofeed
 
 import com.asturiancoder.photofeed.feed.api.HttpClient
+import com.asturiancoder.photofeed.feed.api.HttpResponse
 import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,31 +39,50 @@ class RemoteFeedLoaderTests {
 
     @Test
     fun load_deliversErrorOnClientError() {
+        val (sut, client) = makeSut()
         val clientError = Exception()
-        val client = HttpClientStub(Result.failure(clientError))
-        val (sut, _) = makeSut(client = client)
+        client.stubWith(Result.failure(clientError))
 
         val receivedResult = sut.load()
 
         assertEquals(Result.failure(RemoteFeedLoader.Error.Connectivity), receivedResult)
     }
 
+    @Test
+    fun load_deliversErrorOnNon200HttpResponse() {
+        val (sut, client) = makeSut()
+
+        val samples = listOf(199, 201, 300, 400, 500)
+        samples.forEach { httpCode ->
+            client.stubWith(Result.success(HttpResponse(httpCode)))
+            val receivedResult = sut.load()
+
+            assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
+        }
+
+    }
+
     // region Helpers
 
-    private fun makeSut(url: String = "https://a-url.com", client: HttpClientStub = HttpClientStub()): Pair<RemoteFeedLoader, HttpClientStub> {
+    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClientStub> {
+        val client = HttpClientStub()
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
     }
 
-    private class HttpClientStub(
-        private val stub: Result<Unit> = Result.success(Unit)
-    ) : HttpClient {
-        var requestedUrls = mutableListOf<String>()
+    private class HttpClientStub : HttpClient {
+        val requestedUrls = mutableListOf<String>()
 
-        override fun get(url: String): Result<Unit> {
+        private var stub = Result.success(HttpResponse(200))
+
+        override fun get(url: String): Result<HttpResponse> {
             requestedUrls.add(url)
             return stub
+        }
+
+        fun stubWith(stub: Result<HttpResponse>) {
+            this.stub = stub
         }
     }
 

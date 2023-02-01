@@ -2,8 +2,12 @@ package com.asturiancoder.photofeed.feed.api
 
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
+data class HttpResponse(
+    val code: Int
+)
+
 internal interface HttpClient {
-    fun get(url: String): Result<Unit>
+    fun get(url: String): Result<HttpResponse>
 }
 
 internal class RemoteFeedLoader(
@@ -12,11 +16,18 @@ internal class RemoteFeedLoader(
 ) {
 
     sealed class Error : Exception() {
-        object Connectivity: Error()
+        object Connectivity : Error()
+        object InvalidData : Error()
     }
 
-    fun load() : Result<List<FeedPhoto>>{
-        client.get(url = url)
+    fun load(): Result<List<FeedPhoto>> {
+        val result = client.get(url = url)
+
+        result.onSuccess { response ->
+            if (response.code != 200) {
+                return Result.failure(Error.InvalidData)
+            }
+        }
         return Result.failure(Error.Connectivity)
     }
 }
