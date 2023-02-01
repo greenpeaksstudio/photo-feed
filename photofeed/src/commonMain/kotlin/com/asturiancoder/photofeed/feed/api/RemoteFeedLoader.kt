@@ -28,8 +28,8 @@ internal class RemoteFeedLoader(
             .fold(
                 onSuccess = { response ->
                     try {
-                        FeedPhotosMapper.map(response)
-                        Result.success(listOf())
+                        val remotePhotos = FeedPhotosMapper.map(response)
+                        Result.success(remotePhotos.toModels())
                     } catch (e: Exception) {
                         Result.failure(Error.InvalidData)
                     }
@@ -37,5 +37,21 @@ internal class RemoteFeedLoader(
                     Result.failure(Error.Connectivity)
                 }
             )
+    }
+}
+
+private fun List<RemoteFeedPhoto>.toModels(): List<FeedPhoto> {
+    return map { remotePhoto ->
+        FeedPhoto(
+            id = remotePhoto.id,
+            description = remotePhoto.description,
+            location = remotePhoto.location,
+            url = remotePhoto.url,
+            likes = remotePhoto.likes,
+            author = FeedPhoto.Author(
+                name = remotePhoto.author.name,
+                imageUrl = remotePhoto.author.imageUrl
+            )
+        )
     }
 }
