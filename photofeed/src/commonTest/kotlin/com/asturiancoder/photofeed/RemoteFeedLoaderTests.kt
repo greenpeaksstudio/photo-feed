@@ -78,7 +78,7 @@ class RemoteFeedLoaderTests {
     }
 
     @Test
-    fun load_deliversNoItemsOn200HttpResponseWithEmptyJsonList() {
+    fun load_deliversNoPhotosOn200HttpResponseWithEmptyJsonList() {
         val (sut, client) = makeSut()
 
         val emptyListJson = makePhotosJson(listOf())
@@ -89,7 +89,7 @@ class RemoteFeedLoaderTests {
     }
 
     @Test
-    fun load_deliversItemsOn200HttpResponseWithJsonItems() {
+    fun load_deliversPhotosOn200HttpResponseWithJsonPhotos() {
         val (sut, client) = makeSut()
 
         val (photo1, remote1) = makePhoto(
