@@ -3,7 +3,7 @@
 ## App Architecture
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/assets/architecture.png" width="400" />
+    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/assets/architecture.png" />
 </p>
 
 # License
