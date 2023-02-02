@@ -8,10 +8,6 @@ internal data class HttpResponse(
     val jsonString: String,
 )
 
-internal interface HttpClient {
-    fun get(url: String): Result<HttpResponse>
-}
-
 internal class RemoteFeedLoader(
     private val url: String,
     private val client: HttpClient,
