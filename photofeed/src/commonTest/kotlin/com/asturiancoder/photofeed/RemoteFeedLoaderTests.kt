@@ -4,6 +4,7 @@ import com.asturiancoder.photofeed.feed.api.HttpClient
 import com.asturiancoder.photofeed.feed.api.HttpResponse
 import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
 import com.asturiancoder.photofeed.feed.api.RemoteFeedPhoto
+import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -119,7 +120,7 @@ class RemoteFeedLoaderTests {
 
     // region Helpers
 
-    private fun makeSut(url: String = "https://a-url.com"): Pair<RemoteFeedLoader, HttpClientStub> {
+    private fun makeSut(url: String = "https://a-url.com"): Pair<FeedLoader, HttpClientStub> {
         val client = HttpClientStub()
         val sut = RemoteFeedLoader(url, client)
 
