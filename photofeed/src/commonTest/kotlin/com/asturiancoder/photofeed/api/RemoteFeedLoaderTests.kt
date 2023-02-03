@@ -1,4 +1,4 @@
-package com.asturiancoder.photofeed
+package com.asturiancoder.photofeed.api
 
 import com.asturiancoder.photofeed.feed.api.HttpClient
 import com.asturiancoder.photofeed.feed.api.HttpResponse
