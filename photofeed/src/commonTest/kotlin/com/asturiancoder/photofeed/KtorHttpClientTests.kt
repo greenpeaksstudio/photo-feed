@@ -1,30 +1,13 @@
 package com.asturiancoder.photofeed
 
 import com.asturiancoder.photofeed.feed.api.HttpClient
-import com.asturiancoder.photofeed.feed.api.HttpResponse
+import com.asturiancoder.photofeed.feed.api.KtorHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.request.get
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import io.ktor.client.HttpClient as KtorClient
-
-class KtorHttpClient(
-    private val client: KtorClient
-) : HttpClient {
-
-    override fun get(url: String): Result<HttpResponse> = runBlocking {
-        try {
-            client.get(url)
-        } catch (exception: Exception) {
-            return@runBlocking Result.failure(exception)
-        }
-
-        return@runBlocking Result.failure(Exception())
-    }
-}
 
 class KtorHttpClientTests {
 
@@ -54,7 +37,7 @@ class KtorHttpClientTests {
 
     // region Helpers
 
-    private fun makeSut() : Pair<HttpClient, MockEngine> {
+    private fun makeSut(): Pair<HttpClient, MockEngine> {
         val engine = MockEngine { respond("") }
         val sut = KtorHttpClient(KtorClient(engine))
 
