@@ -35,6 +35,18 @@ class KtorHttpClientTests {
         assertEquals(requestError.message, result.exceptionOrNull()?.message)
     }
 
+    @Test
+    fun get_succeedsOnResponseWithData() {
+        val (sut, engine) = makeSut()
+        val anyData = anyData()
+        engine.completeWithData(anyData)
+
+        val result = sut.get(anyUrl())
+
+        assertNotNull(result.getOrNull(), "Expected success, got $result instead")
+        assertEquals(anyData, result.getOrNull()?.jsonString)
+    }
+
     // region Helpers
 
     private fun makeSut(): Pair<HttpClient, MockEngine> {
@@ -46,9 +58,16 @@ class KtorHttpClientTests {
 
     private fun anyUrl() = "http://any-url.com"
 
+    private fun anyData() = "{[]}"
+
     private fun MockEngine.completeWithError(error: Exception) {
         config.requestHandlers.clear()
         config.requestHandlers.add { throw error }
+    }
+
+    private fun MockEngine.completeWithData(data: String) {
+        config.requestHandlers.clear()
+        config.requestHandlers.add { respond(data) }
     }
 
     // endregion
