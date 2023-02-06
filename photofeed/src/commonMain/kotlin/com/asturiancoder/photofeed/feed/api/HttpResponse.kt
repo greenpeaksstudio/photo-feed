@@ -1,6 +1,6 @@
 package com.asturiancoder.photofeed.feed.api
 
-internal data class HttpResponse(
+data class HttpResponse(
     val code: Int,
     val jsonString: String,
 )
