@@ -9,6 +9,7 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import io.ktor.client.HttpClient as KtorClient
 
 class KtorHttpClient(
@@ -16,7 +17,11 @@ class KtorHttpClient(
 ) : HttpClient {
 
     override fun get(url: String): Result<HttpResponse> = runBlocking {
-        client.get(url)
+        try {
+            client.get(url)
+        } catch (exception: Exception) {
+            return@runBlocking Result.failure(exception)
+        }
 
         return@runBlocking Result.failure(Exception())
     }
@@ -38,6 +43,18 @@ class KtorHttpClientTests {
 
         assertEquals(url, receivedRequest!!.url.toString())
         assertEquals("GET", receivedRequest!!.method.value)
+    }
+
+    @Test
+    fun get_failsOnRequestError() {
+        val requestError = Exception("Request error")
+        val engine = MockEngine { throw requestError }
+        val sut = KtorHttpClient(KtorClient(engine))
+
+        val result = sut.get(anyUrl())
+
+        assertNotNull(result.exceptionOrNull(), "Expected failure, got $result instead")
+        assertEquals(requestError.message, result.exceptionOrNull()?.message)
     }
 
     // region Helpers
