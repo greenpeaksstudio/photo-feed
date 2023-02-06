@@ -4,7 +4,6 @@ import com.asturiancoder.photofeed.feed.api.HttpClient
 import com.asturiancoder.photofeed.feed.api.HttpResponse
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -32,24 +31,20 @@ class KtorHttpClientTests {
     @Test
     fun get_performsGetRequestWithUrl() {
         val url = anyUrl()
-        var receivedRequest: HttpRequestData? = null
-        val engine = MockEngine {
-            receivedRequest = it
-            respond("")
-        }
-        val sut = KtorHttpClient(KtorClient(engine))
+        val (sut, engine) = makeSut()
 
         sut.get(url)
 
-        assertEquals(url, receivedRequest!!.url.toString())
-        assertEquals("GET", receivedRequest!!.method.value)
+        val receivedRequest = engine.requestHistory.first()
+        assertEquals(url, receivedRequest.url.toString())
+        assertEquals("GET", receivedRequest.method.value)
     }
 
     @Test
     fun get_failsOnRequestError() {
+        val (sut, engine) = makeSut()
         val requestError = Exception("Request error")
-        val engine = MockEngine { throw requestError }
-        val sut = KtorHttpClient(KtorClient(engine))
+        engine.completeWithError(requestError)
 
         val result = sut.get(anyUrl())
 
@@ -59,7 +54,19 @@ class KtorHttpClientTests {
 
     // region Helpers
 
+    private fun makeSut() : Pair<HttpClient, MockEngine> {
+        val engine = MockEngine { respond("") }
+        val sut = KtorHttpClient(KtorClient(engine))
+
+        return sut to engine
+    }
+
     private fun anyUrl() = "http://any-url.com"
+
+    private fun MockEngine.completeWithError(error: Exception) {
+        config.requestHandlers.clear()
+        config.requestHandlers.add { throw error }
+    }
 
     // endregion
 }
