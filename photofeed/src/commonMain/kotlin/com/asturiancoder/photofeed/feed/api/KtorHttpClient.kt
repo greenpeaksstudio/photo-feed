@@ -3,10 +3,11 @@ package com.asturiancoder.photofeed.feed.api
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
+import io.ktor.client.HttpClient as KtorClient
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 
 internal class KtorHttpClient(
-    private val client: io.ktor.client.HttpClient
+    private val client: KtorClient
 ) : HttpClient {
 
     override fun get(url: String): Result<HttpResponse> = runBlocking {
