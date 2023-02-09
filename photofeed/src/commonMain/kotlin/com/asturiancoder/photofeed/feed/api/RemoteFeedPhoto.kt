@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class RemoteFeedPhoto(
     @SerialName("id") val id: String,
-    @SerialName("description") val description: String?,
-    @SerialName("location") val location: String?,
+    @SerialName("description") val description: String? = null,
+    @SerialName("location") val location: String? = null,
     @SerialName("url") val url: String,
     @SerialName("likes") val likes: Int,
     @SerialName("author") val author: Author,

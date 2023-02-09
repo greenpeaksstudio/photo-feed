@@ -3,11 +3,13 @@ package com.asturiancoder.photofeed.api
 import com.asturiancoder.photofeed.feed.api.HttpClient
 import com.asturiancoder.photofeed.feed.api.HttpResponse
 import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
-import com.asturiancoder.photofeed.feed.api.RemoteFeedPhoto
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -93,7 +95,7 @@ class RemoteFeedLoaderTests {
     fun load_deliversPhotosOn200HttpResponseWithJsonPhotos() {
         val (sut, client) = makeSut()
 
-        val (photo1, remote1) = makePhoto(
+        val (photo1, json1) = makePhoto(
             id = "an id",
             url = "http://a-url.com",
             likes = 1,
@@ -101,7 +103,7 @@ class RemoteFeedLoaderTests {
             authorImageUrl = "http://an-author-url.com"
         )
 
-        val (photo2, remote2) = makePhoto(
+        val (photo2, json2) = makePhoto(
             id = " another id",
             description = "a description",
             location = "a location",
@@ -111,7 +113,7 @@ class RemoteFeedLoaderTests {
             authorImageUrl = "http://another-author-url.com"
         )
 
-        val json = makePhotosJson(listOf(remote1, remote2))
+        val json = makePhotosJson(listOf(json1, json2))
         client.stubWith(Result.success(HttpResponse(code = 200, jsonString = json)))
         val receivedResult = sut.load()
 
@@ -135,7 +137,7 @@ class RemoteFeedLoaderTests {
         likes: Int,
         authorName: String,
         authorImageUrl: String
-    ): Pair<FeedPhoto, RemoteFeedPhoto> {
+    ): Pair<FeedPhoto, JsonObject> {
         val photo = FeedPhoto(
             id = id,
             description = description,
@@ -145,19 +147,26 @@ class RemoteFeedLoaderTests {
             author = FeedPhoto.Author(name = authorName, imageUrl = authorImageUrl)
         )
 
-        val remote = RemoteFeedPhoto(
-            id = id,
-            description = description,
-            location = location,
-            url = url,
-            likes = likes,
-            author = RemoteFeedPhoto.Author(name = authorName, imageUrl = authorImageUrl)
+        val json = JsonObject(
+            mapOf(
+                "id" to JsonPrimitive(id),
+                "description" to JsonPrimitive(description),
+                "location" to JsonPrimitive(location),
+                "url" to JsonPrimitive(url),
+                "likes" to JsonPrimitive(likes),
+                "author" to JsonObject(
+                    mapOf(
+                        "name" to JsonPrimitive(authorName),
+                        "image_url" to JsonPrimitive(authorImageUrl)
+                    )
+                )
+            ).filter { it.value !is JsonNull }
         )
 
-        return photo to remote
+        return photo to json
     }
 
-    private fun makePhotosJson(photos: List<RemoteFeedPhoto>): String {
+    private fun makePhotosJson(photos: List<JsonObject>): String {
         val root = mapOf("photos" to photos)
         return Json.encodeToString(root)
     }
