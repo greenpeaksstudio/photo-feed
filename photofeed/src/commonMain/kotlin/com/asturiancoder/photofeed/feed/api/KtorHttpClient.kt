@@ -6,7 +6,7 @@ import kotlinx.coroutines.runBlocking
 import io.ktor.client.HttpClient as KtorClient
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 
-internal class KtorHttpClient(
+class KtorHttpClient(
     private val client: KtorClient
 ) : HttpClient {
 

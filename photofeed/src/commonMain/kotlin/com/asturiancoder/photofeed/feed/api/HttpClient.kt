@@ -1,5 +1,5 @@
 package com.asturiancoder.photofeed.feed.api
 
-internal interface HttpClient {
+interface HttpClient {
     fun get(url: String): Result<HttpResponse>
 }
