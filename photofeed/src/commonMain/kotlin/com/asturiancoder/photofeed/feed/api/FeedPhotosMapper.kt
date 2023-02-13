@@ -48,12 +48,14 @@ internal object FeedPhotosMapper {
     private const val OK_200 = 200
 
     fun map(response: HttpResponse): List<FeedPhoto> {
-        if (response.code == OK_200) {
+        if (response.code != OK_200) throw RemoteFeedLoader.Error.InvalidData
+
+        try {
             val root = Json.decodeFromString<Root>(response.jsonString)
             return root.feed
+        } catch (e: Exception) {
+            throw RemoteFeedLoader.Error.InvalidData
         }
-
-        throw RemoteFeedLoader.Error.InvalidData
     }
 }
 
