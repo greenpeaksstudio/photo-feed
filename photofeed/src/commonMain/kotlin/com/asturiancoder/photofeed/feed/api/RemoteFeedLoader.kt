@@ -28,26 +28,9 @@ class RemoteFeedLoader(
 
     private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
         return try {
-            val remotePhotos = FeedPhotosMapper.map(response)
-            Result.success(remotePhotos.toModels())
+            Result.success(FeedPhotosMapper.map(response))
         } catch (e: Exception) {
             Result.failure(Error.InvalidData)
         }
-    }
-}
-
-private fun List<RemoteFeedPhoto>.toModels(): List<FeedPhoto> {
-    return map { remotePhoto ->
-        FeedPhoto(
-            id = remotePhoto.id,
-            description = remotePhoto.description,
-            location = remotePhoto.location,
-            url = remotePhoto.url,
-            likes = remotePhoto.likes,
-            author = FeedPhoto.Author(
-                name = remotePhoto.author.name,
-                imageUrl = remotePhoto.author.imageUrl
-            )
-        )
     }
 }
