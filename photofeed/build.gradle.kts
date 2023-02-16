@@ -24,16 +24,11 @@ kotlin {
     sourceSets {
         val ktorVersion = "2.2.3"
 
+        /* Main source sets */
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation("io.ktor:ktor-client-mock:$ktorVersion")
             }
         }
 
@@ -42,30 +37,47 @@ kotlin {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
-        val androidTest by getting
 
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
-
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
             }
         }
+
+        /* Main hierarchy */
+        androidMain.dependsOn(commonMain)
+
+        iosMain.dependsOn(commonMain)
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
+
+
+        /* Test source sets */
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("io.ktor:ktor-client-mock:$ktorVersion")
+            }
+        }
+
+        val androidTest by getting
+
         val iosX64Test by getting
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
-        val iosTest by creating {
-            dependsOn(commonTest)
-            iosX64Test.dependsOn(this)
-            iosArm64Test.dependsOn(this)
-            iosSimulatorArm64Test.dependsOn(this)
-        }
+        val iosTest by creating
+
+        /* Test hierarchy */
+        androidTest.dependsOn(commonTest)
+
+        iosTest.dependsOn(commonTest)
+        iosArm64Test.dependsOn(iosTest)
+        iosX64Test.dependsOn(iosTest)
+        iosSimulatorArm64Test.dependsOn(iosTest)
     }
 }
 

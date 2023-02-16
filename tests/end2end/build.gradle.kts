@@ -13,6 +13,8 @@ kotlin {
 
 
     sourceSets {
+
+        /* Test source sets */
         val commonTest by getting {
             dependencies {
                 implementation(project(":photofeed"))
