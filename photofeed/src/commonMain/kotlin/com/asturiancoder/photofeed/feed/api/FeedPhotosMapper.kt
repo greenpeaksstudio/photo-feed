@@ -1,5 +1,7 @@
 package com.asturiancoder.photofeed.feed.api
 
+import com.asturiancoder.photofeed.feed.api.model.HttpResponse
+import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -45,10 +47,8 @@ internal object FeedPhotosMapper {
             }
     }
 
-    private const val OK_200 = 200
-
     fun map(response: HttpResponse): List<FeedPhoto> {
-        if (response.code != OK_200) throw RemoteFeedLoader.Error.InvalidData
+        if (response.code != HttpStatusCode.OK) throw RemoteFeedLoader.Error.InvalidData
 
         try {
             val root = Json.decodeFromString<Root>(response.jsonString)

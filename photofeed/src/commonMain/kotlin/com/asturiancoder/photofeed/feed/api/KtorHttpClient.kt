@@ -1,5 +1,7 @@
 package com.asturiancoder.photofeed.feed.api
 
+import com.asturiancoder.photofeed.feed.api.model.HttpResponse
+import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
@@ -15,5 +17,5 @@ class KtorHttpClient(
     }
 
     private suspend fun KtorHttpResponse.map() =
-        HttpResponse(code = status.value, jsonString = bodyAsText())
+        HttpResponse(code = HttpStatusCode.fromValue(status.value), jsonString = bodyAsText())
 }

@@ -1,5 +1,6 @@
 package com.asturiancoder.photofeed.feed.api
 
+import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
