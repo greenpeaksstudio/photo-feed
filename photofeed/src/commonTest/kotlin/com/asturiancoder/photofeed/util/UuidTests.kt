@@ -62,5 +62,4 @@ class UuidTests {
     private fun anotherValidUUIDString() = "34977d81-936d-4305-bcc6-9640cfaef197"
 
     // endregion
-
 }

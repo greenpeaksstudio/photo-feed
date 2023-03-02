@@ -14,5 +14,5 @@ data class HttpStatusCode(val value: Int, val description: String) {
 }
 
 private fun allStatusCodes(): List<HttpStatusCode> = listOf(
-    HttpStatusCode.OK
+    HttpStatusCode.OK,
 )

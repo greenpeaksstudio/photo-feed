@@ -12,7 +12,7 @@ internal object FeedPhotosMapper {
 
     @Serializable
     private data class Root(
-        @SerialName("photos") val photos: List<RemoteFeedPhoto>
+        @SerialName("photos") val photos: List<RemoteFeedPhoto>,
     ) {
         @Serializable
         private data class RemoteFeedPhoto(
@@ -40,10 +40,9 @@ internal object FeedPhotosMapper {
                     likes = remotePhoto.likes,
                     author = FeedPhoto.Author(
                         name = remotePhoto.author.name,
-                        imageUrl = remotePhoto.author.imageUrl
-                    )
+                        imageUrl = remotePhoto.author.imageUrl,
+                    ),
                 )
-
             }
     }
 
@@ -58,5 +57,3 @@ internal object FeedPhotosMapper {
         }
     }
 }
-
-

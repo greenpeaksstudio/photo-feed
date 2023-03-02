@@ -12,10 +12,8 @@ class RandomUuidGenerator : UuidGenerator {
     } catch (e: Exception) {
         false
     }
-
 }
 
 internal actual object UuidGeneratorFactory {
     actual fun create(): UuidGenerator = RandomUuidGenerator()
 }
-

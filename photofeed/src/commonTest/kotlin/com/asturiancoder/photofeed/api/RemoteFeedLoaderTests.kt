@@ -101,7 +101,7 @@ class RemoteFeedLoaderTests {
             url = "http://a-url.com",
             likes = 1,
             authorName = "a name",
-            authorImageUrl = "http://an-author-url.com"
+            authorImageUrl = "http://an-author-url.com",
         )
 
         val (photo2, json2) = makePhoto(
@@ -111,7 +111,7 @@ class RemoteFeedLoaderTests {
             url = "http://another-url.com",
             likes = 2,
             authorName = "another name",
-            authorImageUrl = "http://another-author-url.com"
+            authorImageUrl = "http://another-author-url.com",
         )
 
         val json = makePhotosJson(listOf(json1, json2))
@@ -141,7 +141,7 @@ class RemoteFeedLoaderTests {
         url: String,
         likes: Int,
         authorName: String,
-        authorImageUrl: String
+        authorImageUrl: String,
     ): Pair<FeedPhoto, JsonObject> {
         val photo = FeedPhoto(
             id = id,
@@ -149,7 +149,7 @@ class RemoteFeedLoaderTests {
             location = location,
             url = url,
             likes = likes,
-            author = FeedPhoto.Author(name = authorName, imageUrl = authorImageUrl)
+            author = FeedPhoto.Author(name = authorName, imageUrl = authorImageUrl),
         )
 
         val json = JsonObject(
@@ -162,10 +162,10 @@ class RemoteFeedLoaderTests {
                 "author" to JsonObject(
                     mapOf(
                         "name" to JsonPrimitive(authorName),
-                        "image_url" to JsonPrimitive(authorImageUrl)
-                    )
-                )
-            ).filter { it.value !is JsonNull }
+                        "image_url" to JsonPrimitive(authorImageUrl),
+                    ),
+                ),
+            ).filter { it.value !is JsonNull },
         )
 
         return photo to json

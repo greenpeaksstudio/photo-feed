@@ -21,9 +21,10 @@ class RemoteFeedLoader(
             .fold(
                 onSuccess = { response ->
                     map(response)
-                }, onFailure = {
+                },
+                onFailure = {
                     Result.failure(Error.Connectivity)
-                }
+                },
             )
     }
 

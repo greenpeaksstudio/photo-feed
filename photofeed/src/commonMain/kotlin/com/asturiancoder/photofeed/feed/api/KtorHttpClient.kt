@@ -9,7 +9,7 @@ import io.ktor.client.HttpClient as KtorClient
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 
 class KtorHttpClient(
-    private val client: KtorClient
+    private val client: KtorClient,
 ) : HttpClient {
 
     override fun get(url: String): Result<HttpResponse> = runBlocking {
