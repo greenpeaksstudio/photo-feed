@@ -7,6 +7,8 @@ plugins {
     kotlin("plugin.serialization").version(kotlinVersion).apply(false)
 }
 
+apply(from = "scripts/git-hooks/install.gradle.kts")
+
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     val ktlintVersion = "0.48.2"
 
