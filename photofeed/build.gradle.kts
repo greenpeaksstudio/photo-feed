@@ -64,7 +64,7 @@ kotlin {
             }
         }
 
-        val androidTest by getting
+        val androidUnitTest by getting
 
         val iosX64Test by getting
         val iosArm64Test by getting
@@ -72,7 +72,7 @@ kotlin {
         val iosTest by creating
 
         /* Test hierarchy */
-        androidTest.dependsOn(commonTest)
+        androidUnitTest.dependsOn(commonTest)
 
         iosTest.dependsOn(commonTest)
         iosArm64Test.dependsOn(iosTest)
