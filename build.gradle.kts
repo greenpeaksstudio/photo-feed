@@ -2,13 +2,18 @@ plugins {
     val kotlinVersion = "1.8.10"
 
     id("com.android.library").version("7.4.1").apply(false)
-    id("com.diffplug.spotless").version("6.16.0").apply(true)
     kotlin("multiplatform").version(kotlinVersion).apply(false)
     kotlin("plugin.serialization").version(kotlinVersion).apply(false)
+
+    // Static Analysis plugins
+    id("com.diffplug.spotless").version("6.16.0")
+    id("io.gitlab.arturbosch.detekt").version("1.22.0")
 }
 
+// Register `installGitHooks` gradle task
 apply(from = "scripts/git-hooks/install.gradle.kts")
 
+// Spotless configuration
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     val ktlintVersion = "0.48.2"
 
@@ -24,5 +29,28 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         target("*.gradle.kts")
 
         ktlint(ktlintVersion)
+    }
+}
+
+allprojects {
+
+    // Detekt configuration
+    apply(plugin = "io.gitlab.arturbosch.detekt").also {
+
+        detekt {
+            config = rootProject.files("scripts/detekt.yml")
+
+            reports {
+                sarif.required.set(true)
+            }
+        }
+
+        tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+            setSource(files(project.projectDir))
+            exclude("**/build/**")
+            exclude {
+                it.file.relativeTo(projectDir).startsWith(project.buildDir.relativeTo(projectDir))
+            }
+        }
     }
 }
