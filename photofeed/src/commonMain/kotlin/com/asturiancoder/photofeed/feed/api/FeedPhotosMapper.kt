@@ -5,6 +5,7 @@ import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -52,7 +53,7 @@ internal object FeedPhotosMapper {
         try {
             val root = Json.decodeFromString<Root>(response.jsonString)
             return root.feed
-        } catch (e: Exception) {
+        } catch (exception: SerializationException) {
             throw RemoteFeedLoader.Error.InvalidData
         }
     }

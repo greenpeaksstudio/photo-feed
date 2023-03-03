@@ -31,7 +31,7 @@ class RemoteFeedLoader(
     private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
         return try {
             Result.success(FeedPhotosMapper.map(response))
-        } catch (exception: Exception) {
+        } catch (exception: Error.InvalidData) {
             Result.failure(exception)
         }
     }

@@ -8,7 +8,7 @@ class NSUUIDGenerator : UuidGenerator {
     override fun isValidUuidValue(value: String) = try {
         NSUUID(value)
         true
-    } catch (e: Exception) {
+    } catch (exception: Exception) {
         false
     }
 }

@@ -9,7 +9,7 @@ class RandomUuidGenerator : UuidGenerator {
     override fun isValidUuidValue(value: String) = try {
         UUID.fromString(value)
         true
-    } catch (e: Exception) {
+    } catch (exception: Exception) {
         false
     }
 }

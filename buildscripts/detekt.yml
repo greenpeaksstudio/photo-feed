@@ -232,6 +232,7 @@ empty-blocks:
 
 exceptions:
   active: true
+  excludes: ['**/UuidGeneratorFactory.kt']
   ExceptionRaisedInUnexpectedLocation:
     active: true
     methodNames:
@@ -260,6 +261,7 @@ exceptions:
       - 'MalformedURLException'
       - 'NumberFormatException'
       - 'ParseException'
+      - 'SerializationException'
     allowedExceptionNameRegex: '_|(ignore|expected).*'
   ThrowingExceptionFromFinally:
     active: true
