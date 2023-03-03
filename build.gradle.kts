@@ -11,7 +11,7 @@ plugins {
 }
 
 // Register `installGitHooks` gradle task
-apply(from = "scripts/git-hooks/install.gradle.kts")
+apply(from = "buildscripts/git-hooks/install.gradle.kts")
 
 // Spotless configuration
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
@@ -38,7 +38,7 @@ allprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt").also {
 
         detekt {
-            config = rootProject.files("scripts/detekt.yml")
+            config = rootProject.files("buildscripts/detekt.yml")
 
             reports {
                 sarif.required.set(true)
