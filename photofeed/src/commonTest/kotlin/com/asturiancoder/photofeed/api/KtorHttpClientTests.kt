@@ -13,7 +13,7 @@ class KtorHttpClientTests {
 
     @Test
     fun get_performsGetRequestWithUrl() {
-        val url = anyUrl()
+        val url = anyUrl
         val (sut, engine) = makeSut()
 
         sut.get(url)
@@ -29,7 +29,7 @@ class KtorHttpClientTests {
         val requestError = Exception("Request error")
         engine.completeWithError(requestError)
 
-        val result = sut.get(anyUrl())
+        val result = sut.get(anyUrl)
 
         assertNotNull(result.exceptionOrNull(), "Expected failure, got $result instead")
         assertEquals(requestError.message, result.exceptionOrNull()?.message)
@@ -38,10 +38,10 @@ class KtorHttpClientTests {
     @Test
     fun get_succeedsOnResponseWithData() {
         val (sut, engine) = makeSut()
-        val anyData = anyData()
+        val anyData = anyData
         engine.completeWithData(anyData)
 
-        val result = sut.get(anyUrl())
+        val result = sut.get(anyUrl)
 
         assertNotNull(result.getOrNull(), "Expected success, got $result instead")
         assertEquals(anyData, result.getOrNull()?.jsonString)
@@ -56,9 +56,8 @@ class KtorHttpClientTests {
         return sut to engine
     }
 
-    private fun anyUrl() = "http://any-url.com"
-
-    private fun anyData() = "{[]}"
+    private val anyUrl = "http://any-url.com"
+    private val anyData = "{[]}"
 
     private fun MockEngine.completeWithError(error: Exception) {
         config.requestHandlers.clear()
