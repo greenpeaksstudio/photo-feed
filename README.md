@@ -10,14 +10,16 @@
 
 ## Coding Style
 
-Our code style guidelines are based on the [Android Kotlin style guide](https://developer.android.com/kotlin/style-guide).
+### Kotlin Coding conventions
+Our code style guidelines are based on the [Kotlin Coding conventions](https://kotlinlang.org/docs/coding-conventions.html).
 
+#### Spotless and detekt
 
-### Spotless
+All code needs to comply with the [Spotless](https://github.com/diffplug/spotless) checks before being merged. You can check this locally using `./gradlew spotlessCheck`, or auto-format your code with `./gradlew spotlessApply`.
 
-All code needs to comply with the Spotless checks before being merged. You can check this locally using `./gradlew spotlessCheck`, or auto-format your code with `./gradlew spotlessApply`.
+Also, the code needs to comply with static code analyzer enforced by [detekt](https://detekt.dev). You can pass this analysis locally running `./gradlew detekt`
 
-The project has a Git hook you can install to run this check on pre-commit `./gradlew installGitHooks`.
+The project has a Git hook you can install to run the spotless check on pre-commit and both spotless and detekt on pre-push: `./gradlew installGitHooks`.
 
 ## License
 ```
