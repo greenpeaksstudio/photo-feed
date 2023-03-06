@@ -11,7 +11,7 @@ on:
 
 jobs:
   check:
-    name: Static Analysis checks
+    name: Static Analysis
     runs-on: ubuntu-latest
 
     steps:
