@@ -8,12 +8,12 @@ plugins {
 
 kotlin {
     android()
-    
+
     val xcf = XCFramework()
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "PhotoFeed"
@@ -32,7 +32,7 @@ kotlin {
             }
         }
 
-        val androidMain by getting{
+        val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
@@ -54,7 +54,6 @@ kotlin {
         iosX64Main.dependsOn(iosMain)
         iosArm64Main.dependsOn(iosMain)
         iosSimulatorArm64Main.dependsOn(iosMain)
-
 
         /* Test source sets */
         val commonTest by getting {

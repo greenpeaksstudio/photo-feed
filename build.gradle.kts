@@ -27,6 +27,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 
     kotlinGradle {
         target("*.gradle.kts")
+        target("**/*.gradle.kts")
 
         ktlint(ktlintVersion)
     }
