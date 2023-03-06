@@ -1,5 +1,7 @@
 # Photo Feed
 
+[![Multiplatform CI](https://github.com/asturiancoder/photo-feed/actions/workflows/multiplatform_ci.yml/badge.svg)](https://github.com/asturiancoder/photo-feed/actions/workflows/multiplatform_ci.yml)
+
 ## App Architecture
 
 <p align="center">
