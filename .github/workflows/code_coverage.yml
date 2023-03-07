@@ -31,5 +31,5 @@ jobs:
 
       - name: Run Tests & Upload report
         env:
-          COVERALLS_REPO_TOKEN: ${{ github.token }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: ./gradlew koverMergedReport coveralls
