@@ -8,6 +8,9 @@ plugins {
     // Static Analysis plugins
     id("com.diffplug.spotless").version("6.16.0")
     id("io.gitlab.arturbosch.detekt").version("1.22.0")
+
+    // Code Coverage plugin
+    id("org.jetbrains.kotlinx.kover").version("0.6.1")
 }
 
 // Register `installGitHooks` gradle task
@@ -51,6 +54,21 @@ allprojects {
             exclude("**/build/**")
             exclude {
                 it.file.relativeTo(projectDir).startsWith(project.buildDir.relativeTo(projectDir))
+            }
+        }
+    }
+
+    // Kover configuration
+    apply(plugin = "org.jetbrains.kotlinx.kover").apply {
+        koverMerged {
+            enable()
+
+            filters {
+                classes {
+                    excludes += listOf(
+                        "*.*BuildConfig*",
+                    )
+                }
             }
         }
     }
