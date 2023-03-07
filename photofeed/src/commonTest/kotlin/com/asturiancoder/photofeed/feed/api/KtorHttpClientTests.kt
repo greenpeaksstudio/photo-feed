@@ -1,7 +1,5 @@
-package com.asturiancoder.photofeed.api
+package com.asturiancoder.photofeed.feed.api
 
-import com.asturiancoder.photofeed.feed.api.HttpClient
-import com.asturiancoder.photofeed.feed.api.KtorHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import kotlin.test.Test
