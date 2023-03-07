@@ -11,6 +11,7 @@ plugins {
 
     // Code Coverage plugin
     id("org.jetbrains.kotlinx.kover").version("0.6.1")
+    id("com.github.kt3k.coveralls").version("2.12.2")
 }
 
 // Register `installGitHooks` gradle task
@@ -58,7 +59,12 @@ allprojects {
         }
     }
 
-    // Kover configuration
+    // Code Coverage configuration
+    apply(plugin = "com.github.kt3k.coveralls").apply {
+        coveralls {
+            jacocoReportPath = "build/reports/kover/merged/xml/report.xml"
+        }
+    }
     apply(plugin = "org.jetbrains.kotlinx.kover").apply {
         koverMerged {
             enable()
