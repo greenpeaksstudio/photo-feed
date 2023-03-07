@@ -62,7 +62,7 @@ allprojects {
     // Code Coverage configuration
     apply(plugin = "com.github.kt3k.coveralls").apply {
         coveralls {
-            jacocoReportPath = "$buildDir/reports/kover/merged/xml/report.xml"
+            jacocoReportPath = "$buildDir/code-coverage-report/result.xml"
         }
     }
     apply(plugin = "org.jetbrains.kotlinx.kover").apply {
@@ -75,6 +75,10 @@ allprojects {
                         "*.*BuildConfig*",
                     )
                 }
+            }
+
+            xmlReport {
+                reportFile.set(layout.buildDirectory.file("code-coverage-report/result.xml"))
             }
         }
     }
