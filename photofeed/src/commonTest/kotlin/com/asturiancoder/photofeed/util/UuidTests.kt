@@ -41,6 +41,7 @@ class UuidTests {
     }
 
     @Test
+    @Suppress("SENSELESS_COMPARISON")
     fun equals_returnsFalseWhenComparingNull() {
         val uuid = Uuid.from(validUUIDString)!!
 
