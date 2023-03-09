@@ -9,18 +9,35 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class LocalFeedLoader(
     private val store: FeedStore,
+    private val currentTimestamp: () -> Long,
 ) : FeedLoader {
+
+    private val maxCacheAgeInDays = 5
+
     override fun load(): Result<List<FeedPhoto>> {
         return try {
-            Result.success(store.retrieve()?.feed ?: emptyList())
+            val cache = store.retrieve()
+
+            if (cache != null && validate(cache.timestamp, currentTimestamp())) {
+                Result.success(cache.feed)
+            } else {
+                Result.success(emptyList())
+            }
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+    private fun validate(cacheTimestamp: Long, currentTimestamp: Long): Boolean {
+        val maxCacheAge = Instant.fromEpochSeconds(cacheTimestamp)
+            .plus(maxCacheAgeInDays, DateTimeUnit.DAY, TimeZone.UTC)
+        return currentTimestamp < maxCacheAge.epochSeconds
     }
 }
 
@@ -77,7 +94,7 @@ class LocalFeedLoaderTests {
         val feed = uniquePhotoFeed()
         val fixedCurrentTimestamp = Clock.System.now()
         val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
-        val (sut, store) = makeSut()
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
         val receivedResult = sut.load()
@@ -85,11 +102,26 @@ class LocalFeedLoaderTests {
         assertEquals(Result.success(feed), receivedResult)
     }
 
+    @Test
+    fun load_deliversNoPhotosOnCacheExpiration() {
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge()
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
+
+        store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
+        val receivedResult = sut.load()
+
+        assertEquals(Result.success(emptyList()), receivedResult)
+    }
+
     // region Helpers
 
-    private fun makeSut(): Pair<LocalFeedLoader, FeedStoreSpy> {
+    private fun makeSut(
+        currentTimestamp: () -> Instant = Clock.System::now,
+    ): Pair<LocalFeedLoader, FeedStoreSpy> {
         val store = FeedStoreSpy()
-        val sut = LocalFeedLoader(store)
+        val sut = LocalFeedLoader(store, currentTimestamp = { currentTimestamp().epochSeconds })
 
         return sut to store
     }
@@ -106,14 +138,13 @@ class LocalFeedLoaderTests {
         author = FeedPhoto.Author(name = "An author", imageUrl = "https://an-author-url.com"),
     )
 
-    private fun Instant.minusFeedCacheMaxAge(): Instant =
-        this.minus(feedCacheMaxAgeInDays, DateTimeUnit.DAY, TimeZone.currentSystemDefault())
+    private val feedCacheMaxAgeInDays = 5
 
-    private val Instant.feedCacheMaxAgeInDays: Int
-        get() = 5
+    private fun Instant.minusFeedCacheMaxAge(): Instant =
+        this.minus(feedCacheMaxAgeInDays, DateTimeUnit.DAY, TimeZone.UTC)
 
     private fun Instant.adding(seconds: Int): Instant =
-        this.minus(seconds, DateTimeUnit.SECOND)
+        this.plus(seconds, DateTimeUnit.SECOND)
 
     class FeedStoreSpy : FeedStore {
         enum class Message {
