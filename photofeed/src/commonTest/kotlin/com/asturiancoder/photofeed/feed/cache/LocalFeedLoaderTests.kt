@@ -11,7 +11,7 @@ internal class LocalFeedLoader(
 ) : FeedLoader {
     override fun load(): Result<List<FeedPhoto>> {
         try {
-            store.retrieve()
+            store.retrieve() ?: return Result.success(emptyList())
         } catch (exception: Exception) {
             return Result.failure(exception)
         }
@@ -57,6 +57,16 @@ class LocalFeedLoaderTests {
         assertEquals(Result.failure(retrievalError), receivedResult)
     }
 
+    @Test
+    fun load_deliversNoPhotosOnEmptyCache() {
+        val (sut, store) = makeSut()
+
+        store.completeRetrievalWithEmptyCache()
+        val receivedResult = sut.load()
+
+        assertEquals(Result.success(emptyList()), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(): Pair<LocalFeedLoader, FeedStoreSpy> {
@@ -78,6 +88,10 @@ class LocalFeedLoaderTests {
 
         fun completeRetrievalWithError(error: Exception) {
             retrievalResult = Result.failure(error)
+        }
+
+        fun completeRetrievalWithEmptyCache() {
+            retrievalResult = Result.success(null)
         }
 
         enum class Message {
