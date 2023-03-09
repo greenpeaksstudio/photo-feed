@@ -3,6 +3,12 @@ package com.asturiancoder.photofeed.feed.cache
 import com.asturiancoder.photofeed.feed.cache.LocalFeedLoaderTests.FeedStoreSpy.Message.RETRIEVE
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
+import com.asturiancoder.photofeed.util.Uuid
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -10,12 +16,11 @@ internal class LocalFeedLoader(
     private val store: FeedStore,
 ) : FeedLoader {
     override fun load(): Result<List<FeedPhoto>> {
-        try {
-            store.retrieve() ?: return Result.success(emptyList())
+        return try {
+            Result.success(store.retrieve()?.feed ?: emptyList())
         } catch (exception: Exception) {
-            return Result.failure(exception)
+            Result.failure(exception)
         }
-        return Result.failure(Exception())
     }
 }
 
@@ -67,6 +72,19 @@ class LocalFeedLoaderTests {
         assertEquals(Result.success(emptyList()), receivedResult)
     }
 
+    @Test
+    fun load_deliversCachedPhotosOnNonExpiredCache() {
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
+        val (sut, store) = makeSut()
+
+        store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
+        val receivedResult = sut.load()
+
+        assertEquals(Result.success(feed), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(): Pair<LocalFeedLoader, FeedStoreSpy> {
@@ -76,7 +94,32 @@ class LocalFeedLoaderTests {
         return sut to store
     }
 
-    private class FeedStoreSpy : FeedStore {
+    private fun uniquePhotoFeed(): List<FeedPhoto> =
+        listOf(uniquePhoto(), uniquePhoto())
+
+    private fun uniquePhoto() = FeedPhoto(
+        id = Uuid(),
+        description = "A description",
+        location = "A location",
+        url = "http://a-url.com",
+        likes = 0,
+        author = FeedPhoto.Author(name = "An author", imageUrl = "https://an-author-url.com"),
+    )
+
+    private fun Instant.minusFeedCacheMaxAge(): Instant =
+        this.minus(feedCacheMaxAgeInDays, DateTimeUnit.DAY, TimeZone.currentSystemDefault())
+
+    private val Instant.feedCacheMaxAgeInDays: Int
+        get() = 5
+
+    private fun Instant.adding(seconds: Int): Instant =
+        this.minus(seconds, DateTimeUnit.SECOND)
+
+    class FeedStoreSpy : FeedStore {
+        enum class Message {
+            RETRIEVE,
+        }
+
         val receivedMessages = mutableListOf<Message>()
 
         private var retrievalResult: Result<CachedFeed?>? = null
@@ -94,8 +137,8 @@ class LocalFeedLoaderTests {
             retrievalResult = Result.success(null)
         }
 
-        enum class Message {
-            RETRIEVE,
+        fun completeRetrievalWith(feed: List<FeedPhoto>, timestamp: Instant) {
+            retrievalResult = Result.success(CachedFeed(feed, timestamp.epochSeconds))
         }
     }
 
