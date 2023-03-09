@@ -1,7 +1,7 @@
 package com.asturiancoder.photofeed.feed.cache
 
 import com.asturiancoder.photofeed.feed.cache.LocalFeedLoaderTests.FeedStoreSpy.Message.RETRIEVE
-import com.asturiancoder.photofeed.feed.feature.FeedLoader
+import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
 import kotlinx.datetime.Clock
@@ -12,43 +12,6 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-internal class LocalFeedLoader(
-    private val store: FeedStore,
-    private val currentTimestamp: () -> Long,
-) : FeedLoader {
-
-    private val maxCacheAgeInDays = 5
-
-    override fun load(): Result<List<FeedPhoto>> {
-        return try {
-            val cache = store.retrieve()
-
-            if (cache != null && validate(cache.timestamp, currentTimestamp())) {
-                Result.success(cache.feed)
-            } else {
-                Result.success(emptyList())
-            }
-        } catch (exception: Exception) {
-            Result.failure(exception)
-        }
-    }
-
-    private fun validate(cacheTimestamp: Long, currentTimestamp: Long): Boolean {
-        val maxCacheAge = Instant.fromEpochSeconds(cacheTimestamp)
-            .plus(maxCacheAgeInDays, DateTimeUnit.DAY, TimeZone.UTC)
-        return currentTimestamp < maxCacheAge.epochSeconds
-    }
-}
-
-data class CachedFeed(
-    val feed: List<FeedPhoto>,
-    val timestamp: Long,
-)
-
-internal interface FeedStore {
-    fun retrieve(): CachedFeed?
-}
 
 class LocalFeedLoaderTests {
 
