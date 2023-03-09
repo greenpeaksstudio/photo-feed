@@ -12,8 +12,8 @@ class KtorHttpClient(
     private val client: KtorClient,
 ) : HttpClient {
 
-    override fun get(url: String): Result<HttpResponse> = runBlocking {
-        runCatching { client.get(url).map() }
+    override fun get(url: String): HttpResponse = runBlocking {
+        client.get(url).map()
     }
 
     private suspend fun KtorHttpResponse.map() =

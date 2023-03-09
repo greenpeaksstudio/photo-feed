@@ -4,7 +4,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.assertFails
 import io.ktor.client.HttpClient as KtorClient
 
 class KtorHttpClientTests {
@@ -27,10 +27,9 @@ class KtorHttpClientTests {
         val requestError = Exception("Request error")
         engine.completeWithError(requestError)
 
-        val result = sut.get(anyUrl)
+        val receivedError = assertFails { sut.get(anyUrl) }
 
-        assertNotNull(result.exceptionOrNull(), "Expected failure, got $result instead")
-        assertEquals(requestError.message, result.exceptionOrNull()?.message)
+        assertEquals(requestError.message, receivedError.message)
     }
 
     @Test
@@ -39,10 +38,8 @@ class KtorHttpClientTests {
         val anyData = anyData
         engine.completeWithData(anyData)
 
-        val result = sut.get(anyUrl)
-
-        assertNotNull(result.getOrNull(), "Expected success, got $result instead")
-        assertEquals(anyData, result.getOrNull()?.jsonString)
+        val response = sut.get(anyUrl)
+        assertEquals(anyData, response.jsonString)
     }
 
     // region Helpers
