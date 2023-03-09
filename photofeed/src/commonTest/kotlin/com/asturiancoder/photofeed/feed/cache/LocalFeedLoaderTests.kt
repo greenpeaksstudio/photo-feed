@@ -32,17 +32,14 @@ class LocalFeedLoaderTests {
 
     @Test
     fun init_doesNotMessageStoreUponCreation() {
-        val store = FeedStoreSpy()
-
-        LocalFeedLoader(store)
+        val (_, store) = makeSut()
 
         assertEquals(0, store.receivedMessages.count())
     }
 
     @Test
     fun load_requestsCacheRetrieval() {
-        val store = FeedStoreSpy()
-        val sut = LocalFeedLoader(store)
+        val (sut, store) = makeSut()
 
         sut.load()
 
@@ -51,8 +48,7 @@ class LocalFeedLoaderTests {
 
     @Test
     fun load_failsOnRetrievalError() {
-        val store = FeedStoreSpy()
-        val sut = LocalFeedLoader(store)
+        val (sut, store) = makeSut()
         val retrievalError = Exception()
 
         store.completeRetrievalWithError(retrievalError)
@@ -62,6 +58,13 @@ class LocalFeedLoaderTests {
     }
 
     // region Helpers
+
+    private fun makeSut(): Pair<LocalFeedLoader, FeedStoreSpy> {
+        val store = FeedStoreSpy()
+        val sut = LocalFeedLoader(store)
+
+        return sut to store
+    }
 
     private class FeedStoreSpy : FeedStore {
         val receivedMessages = mutableListOf<Message>()
