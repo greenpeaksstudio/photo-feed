@@ -27,6 +27,13 @@ class UuidTests {
     }
 
     @Test
+    fun toString_returnsFalseWhenComparingNonUuidType() {
+        val uuid = Uuid.from(validUUIDString)!!
+
+        assertEquals(validUUIDString, uuid.toString())
+    }
+
+    @Test
     fun equals_returnsFalseWhenComparingNonUuidType() {
         val uuid = Uuid.from(validUUIDString)!!
 
