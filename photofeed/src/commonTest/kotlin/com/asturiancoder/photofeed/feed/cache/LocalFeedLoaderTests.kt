@@ -115,6 +115,19 @@ class LocalFeedLoaderTests {
         assertEquals(Result.success(emptyList()), receivedResult)
     }
 
+    @Test
+    fun load_deliversNoPhotosOnExpiredCache() {
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
+
+        store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
+        val receivedResult = sut.load()
+
+        assertEquals(Result.success(emptyList()), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(
