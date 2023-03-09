@@ -5,7 +5,7 @@
 ## App Architecture
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/assets/architecture.png" />
+    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/docs/images/architecture.png" />
 </p>
 
 ## Coding Style

@@ -6,6 +6,7 @@ import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
+import com.asturiancoder.photofeed.util.Uuid
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
@@ -97,7 +98,6 @@ class RemoteFeedLoaderTests {
         val (sut, client) = makeSut()
 
         val (photo1, json1) = makePhoto(
-            id = "an id",
             url = "http://a-url.com",
             likes = 1,
             authorName = "a name",
@@ -105,7 +105,6 @@ class RemoteFeedLoaderTests {
         )
 
         val (photo2, json2) = makePhoto(
-            id = " another id",
             description = "a description",
             location = "a location",
             url = "http://another-url.com",
@@ -135,7 +134,7 @@ class RemoteFeedLoaderTests {
     }
 
     private fun makePhoto(
-        id: String,
+        id: Uuid = Uuid(),
         description: String? = null,
         location: String? = null,
         url: String,
@@ -154,7 +153,7 @@ class RemoteFeedLoaderTests {
 
         val json = JsonObject(
             mapOf(
-                "id" to JsonPrimitive(id),
+                "id" to JsonPrimitive(id.uuidString),
                 "description" to JsonPrimitive(description),
                 "location" to JsonPrimitive(location),
                 "url" to JsonPrimitive(url),

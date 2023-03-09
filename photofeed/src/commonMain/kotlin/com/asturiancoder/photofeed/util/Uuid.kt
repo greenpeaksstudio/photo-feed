@@ -21,6 +21,8 @@ class Uuid {
         }
     }
 
+    override fun toString(): String = uuidString
+
     override fun equals(other: Any?): Boolean {
         if (other !is Uuid) return false
 

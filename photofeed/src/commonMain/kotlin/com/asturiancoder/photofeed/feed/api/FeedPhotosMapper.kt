@@ -3,6 +3,7 @@ package com.asturiancoder.photofeed.feed.api
 import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
+import com.asturiancoder.photofeed.util.Uuid
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -32,18 +33,20 @@ internal object FeedPhotosMapper {
         }
 
         val feed: List<FeedPhoto>
-            get() = photos.map { remotePhoto ->
-                FeedPhoto(
-                    id = remotePhoto.id,
-                    description = remotePhoto.description,
-                    location = remotePhoto.location,
-                    url = remotePhoto.url,
-                    likes = remotePhoto.likes,
-                    author = FeedPhoto.Author(
-                        name = remotePhoto.author.name,
-                        imageUrl = remotePhoto.author.imageUrl,
-                    ),
-                )
+            get() = photos.mapNotNull { remotePhoto ->
+                Uuid.from(remotePhoto.id)?.let { uuid ->
+                    FeedPhoto(
+                        id = uuid,
+                        description = remotePhoto.description,
+                        location = remotePhoto.location,
+                        url = remotePhoto.url,
+                        likes = remotePhoto.likes,
+                        author = FeedPhoto.Author(
+                            name = remotePhoto.author.name,
+                            imageUrl = remotePhoto.author.imageUrl,
+                        ),
+                    )
+                }
             }
     }
 

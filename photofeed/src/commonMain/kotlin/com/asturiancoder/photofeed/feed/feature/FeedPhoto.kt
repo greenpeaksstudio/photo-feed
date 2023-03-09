@@ -1,7 +1,9 @@
 package com.asturiancoder.photofeed.feed.feature
 
+import com.asturiancoder.photofeed.util.Uuid
+
 data class FeedPhoto(
-    val id: String,
+    val id: Uuid,
     val description: String?,
     val location: String?,
     val url: String,
