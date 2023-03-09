@@ -73,20 +73,18 @@ class LocalFeedLoaderTests {
         val (sut, store) = makeSut()
         val retrievalError = Exception()
 
-        store.completeRetrievalWithError(retrievalError)
-        val receivedResult = sut.load()
-
-        assertEquals(Result.failure(retrievalError), receivedResult)
+        expect(sut, expectedResult = Result.failure(retrievalError)) {
+            store.completeRetrievalWithError(retrievalError)
+        }
     }
 
     @Test
     fun load_deliversNoPhotosOnEmptyCache() {
         val (sut, store) = makeSut()
 
-        store.completeRetrievalWithEmptyCache()
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(emptyList()), receivedResult)
+        expect(sut, expectedResult = Result.success(emptyList())) {
+            store.completeRetrievalWithEmptyCache()
+        }
     }
 
     @Test
@@ -96,10 +94,9 @@ class LocalFeedLoaderTests {
         val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(feed), receivedResult)
+        expect(sut, expectedResult = Result.success(feed)) {
+            store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
+        }
     }
 
     @Test
@@ -109,23 +106,21 @@ class LocalFeedLoaderTests {
         val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge()
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(emptyList()), receivedResult)
+        expect(sut, expectedResult = Result.success(emptyList())) {
+            store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
+        }
     }
 
     @Test
     fun load_deliversNoPhotosOnExpiredCache() {
         val feed = uniquePhotoFeed()
         val fixedCurrentTimestamp = Clock.System.now()
-        val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
+        val expiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(emptyList()), receivedResult)
+        expect(sut, expectedResult = Result.success(emptyList())) {
+            store.completeRetrievalWith(feed = feed, timestamp = expiredTimestamp)
+        }
     }
 
     // region Helpers
@@ -137,6 +132,22 @@ class LocalFeedLoaderTests {
         val sut = LocalFeedLoader(store, currentTimestamp = { currentTimestamp().epochSeconds })
 
         return sut to store
+    }
+
+    private fun expect(
+        sut: LocalFeedLoader,
+        expectedResult: Result<List<FeedPhoto>>,
+        action: () -> Unit,
+    ) {
+        action()
+
+        val receivedResult = sut.load()
+
+        assertEquals(
+            expectedResult,
+            receivedResult,
+            "Expected result $expectedResult, got $receivedResult instead",
+        )
     }
 
     private fun uniquePhotoFeed(): List<FeedPhoto> =
