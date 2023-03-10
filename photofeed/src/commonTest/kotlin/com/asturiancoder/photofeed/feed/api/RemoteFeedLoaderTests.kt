@@ -1,7 +1,5 @@
-package com.asturiancoder.photofeed.api
+package com.asturiancoder.photofeed.feed.api
 
-import com.asturiancoder.photofeed.feed.api.HttpClient
-import com.asturiancoder.photofeed.feed.api.RemoteFeedLoader
 import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
@@ -50,11 +48,10 @@ class RemoteFeedLoaderTests {
     fun load_deliversErrorOnClientError() {
         val (sut, client) = makeSut()
         val clientError = Exception()
-        client.stubWith(Result.failure(clientError))
 
-        val receivedResult = sut.load()
-
-        assertEquals(Result.failure(RemoteFeedLoader.Error.Connectivity), receivedResult)
+        expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.Connectivity)) {
+            client.completeWithError(clientError)
+        }
     }
 
     @Test
@@ -62,12 +59,11 @@ class RemoteFeedLoaderTests {
         val (sut, client) = makeSut()
 
         val samples = listOf(199, 201, 300, 400, 500)
+        val json = makePhotosJson(listOf())
         samples.forEach { httpCode ->
-            val json = makePhotosJson(listOf())
-            client.stubWith(Result.success(makeResponse(httpCode, json)))
-            val receivedResult = sut.load()
-
-            assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
+            expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.InvalidData)) {
+                client.completeWithResponse(makeResponse(httpCode, json))
+            }
         }
     }
 
@@ -76,21 +72,19 @@ class RemoteFeedLoaderTests {
         val invalidJson = "invalidJson"
         val (sut, client) = makeSut()
 
-        client.stubWith(Result.success(makeResponse(200, invalidJson)))
-        val receivedResult = sut.load()
-
-        assertEquals(Result.failure(RemoteFeedLoader.Error.InvalidData), receivedResult)
+        expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.InvalidData)) {
+            client.completeWithResponse(makeResponse(200, invalidJson))
+        }
     }
 
     @Test
     fun load_deliversNoPhotosOn200HttpResponseWithEmptyJsonList() {
         val (sut, client) = makeSut()
 
-        val emptyListJson = makePhotosJson(listOf())
-        client.stubWith(Result.success(makeResponse(200, emptyListJson)))
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(listOf()), receivedResult)
+        expect(sut, expectedResult = Result.success(listOf())) {
+            val emptyListJson = makePhotosJson(listOf())
+            client.completeWithResponse(makeResponse(200, emptyListJson))
+        }
     }
 
     @Test
@@ -113,20 +107,35 @@ class RemoteFeedLoaderTests {
             authorImageUrl = "http://another-author-url.com",
         )
 
-        val json = makePhotosJson(listOf(json1, json2))
-        client.stubWith(Result.success(makeResponse(200, json)))
-        val receivedResult = sut.load()
-
-        assertEquals(Result.success(listOf(photo1, photo2)), receivedResult)
+        expect(sut, expectedResult = Result.success(listOf(photo1, photo2))) {
+            val json = makePhotosJson(listOf(json1, json2))
+            client.completeWithResponse(makeResponse(200, json))
+        }
     }
 
     // region Helpers
 
-    private fun makeSut(url: String = "https://a-url.com"): Pair<FeedLoader, HttpClientStub> {
-        val client = HttpClientStub()
+    private fun makeSut(url: String = "https://a-url.com"): Pair<FeedLoader, HttpClientSpy> {
+        val client = HttpClientSpy()
         val sut = RemoteFeedLoader(url, client)
 
         return sut to client
+    }
+
+    private fun expect(
+        sut: FeedLoader,
+        expectedResult: Result<List<FeedPhoto>>,
+        action: () -> Unit,
+    ) {
+        action()
+
+        val receivedResult = sut.load()
+
+        assertEquals(
+            expectedResult,
+            receivedResult,
+            "Expected result $expectedResult, got $receivedResult instead",
+        )
     }
 
     private fun makeResponse(httpCode: Int, json: String): HttpResponse {
@@ -175,19 +184,23 @@ class RemoteFeedLoaderTests {
         return Json.encodeToString(root)
     }
 
-    private class HttpClientStub : HttpClient {
+    private class HttpClientSpy : HttpClient {
         val requestedUrls = mutableListOf<String>()
 
-        private val response = HttpResponse(code = HttpStatusCode.OK, jsonString = "")
-        private var stub = Result.success(response)
+        private val defaultResponse = HttpResponse(code = HttpStatusCode.OK, jsonString = "")
+        private var getResult: Result<HttpResponse> = Result.success(defaultResponse)
 
-        override fun get(url: String): Result<HttpResponse> {
+        override fun get(url: String): HttpResponse {
             requestedUrls.add(url)
-            return stub
+            return getResult.getOrThrow()
         }
 
-        fun stubWith(stub: Result<HttpResponse>) {
-            this.stub = stub
+        fun completeWithError(error: Exception) {
+            getResult = Result.failure(error)
+        }
+
+        fun completeWithResponse(response: HttpResponse) {
+            getResult = Result.success(response)
         }
     }
 

@@ -15,17 +15,11 @@ class RemoteFeedLoader(
     }
 
     override fun load(): Result<List<FeedPhoto>> {
-        val result = client.get(url = url)
-
-        return result
-            .fold(
-                onSuccess = { response ->
-                    map(response)
-                },
-                onFailure = {
-                    Result.failure(Error.Connectivity)
-                },
-            )
+        return try {
+            map(client.get(url = url))
+        } catch (exception: Exception) {
+            Result.failure(Error.Connectivity)
+        }
     }
 
     private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
