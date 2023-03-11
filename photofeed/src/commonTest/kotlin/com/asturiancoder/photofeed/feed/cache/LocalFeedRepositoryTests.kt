@@ -1,6 +1,6 @@
 package com.asturiancoder.photofeed.feed.cache
 
-import com.asturiancoder.photofeed.feed.cache.LocalFeedLoaderTests.FeedStoreSpy.Message.RETRIEVE
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.RETRIEVE
 import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
@@ -13,7 +13,7 @@ import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class LocalFeedLoaderTests {
+class LocalFeedRepositoryTests {
 
     @Test
     fun init_doesNotMessageStoreUponCreation() {
@@ -90,15 +90,15 @@ class LocalFeedLoaderTests {
 
     private fun makeSut(
         currentTimestamp: () -> Instant = Clock.System::now,
-    ): Pair<LocalFeedLoader, FeedStoreSpy> {
+    ): Pair<LocalFeedRepository, FeedStoreSpy> {
         val store = FeedStoreSpy()
-        val sut = LocalFeedLoader(store, currentTimestamp = { currentTimestamp().epochSeconds })
+        val sut = LocalFeedRepository(store, currentTimestamp = { currentTimestamp().epochSeconds })
 
         return sut to store
     }
 
     private fun expect(
-        sut: LocalFeedLoader,
+        sut: LocalFeedRepository,
         expectedResult: Result<List<FeedPhoto>>,
         action: () -> Unit,
     ) {

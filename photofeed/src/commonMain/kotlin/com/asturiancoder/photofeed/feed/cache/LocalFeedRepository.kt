@@ -3,7 +3,7 @@ package com.asturiancoder.photofeed.feed.cache
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
-class LocalFeedLoader(
+class LocalFeedRepository(
     private val store: FeedStore,
     private val currentTimestamp: () -> Long,
 ) : FeedLoader {

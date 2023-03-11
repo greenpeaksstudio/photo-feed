@@ -4,7 +4,7 @@ import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
-class RemoteFeedLoader(
+class RemoteFeedRepository(
     private val url: String,
     private val client: HttpClient,
 ) : FeedLoader {
