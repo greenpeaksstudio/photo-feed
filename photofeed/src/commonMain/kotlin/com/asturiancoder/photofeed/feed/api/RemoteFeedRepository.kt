@@ -25,8 +25,8 @@ class RemoteFeedRepository(
     private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
         return try {
             Result.success(FeedPhotosMapper.map(response))
-        } catch (exception: Error.InvalidData) {
-            Result.failure(exception)
+        } catch (exception: Exception) {
+            Result.failure(Error.InvalidData)
         }
     }
 }
