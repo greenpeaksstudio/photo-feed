@@ -151,23 +151,21 @@ class LocalFeedRepositoryTests {
     fun validateCache_failsOnDeletionErrorAfterFailedRetrieval() {
         val (sut, store) = makeSut()
         val deletionError = Exception()
-        store.completeRetrievalWithError(Exception())
-        store.completeDeletionWithError(deletionError)
 
-        val receivedResult = Result.runCatching { sut.validateCache() }
-
-        assertEquals(Result.failure(deletionError), receivedResult)
+        sut.expectValidateCache(expectedResult = Result.failure(deletionError)) {
+            store.completeRetrievalWithError(Exception())
+            store.completeDeletionWithError(deletionError)
+        }
     }
 
     @Test
     fun validateCache_successOnSuccessfulDeletionAfterFailedRetrieval() {
         val (sut, store) = makeSut()
-        store.completeRetrievalWithError(Exception())
-        store.completeDeletionWithSuccessfully()
 
-        val receivedResult = Result.runCatching { sut.validateCache() }
-
-        assertEquals(Result.success(Unit), receivedResult)
+        sut.expectValidateCache(expectedResult = Result.success(Unit)) {
+            store.completeRetrievalWithError(Exception())
+            store.completeDeletionWithSuccessfully()
+        }
     }
 
     // region Helpers
@@ -188,6 +186,21 @@ class LocalFeedRepositoryTests {
         onAction()
 
         val receivedResult = load()
+
+        assertEquals(
+            expectedResult,
+            receivedResult,
+            "Expected result $expectedResult, got $receivedResult instead",
+        )
+    }
+
+    private fun LocalFeedRepository.expectValidateCache(
+        expectedResult: Result<Unit>,
+        onAction: () -> Unit,
+    ) {
+        onAction()
+
+        val receivedResult = runCatching { validateCache() }
 
         assertEquals(
             expectedResult,
