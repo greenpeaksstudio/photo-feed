@@ -15,6 +15,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 class LocalFeedRepositoryTests {
 
@@ -227,7 +228,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut()
         store.completeDeletionWithError(deletionError)
 
-        sut.save(feed)
+        assertFails { sut.save(feed) }
 
         assertEquals(listOf<Message>(DeleteCachedFeed), store.receivedMessages)
     }
@@ -245,6 +246,30 @@ class LocalFeedRepositoryTests {
             listOf(DeleteCachedFeed, Insert(feed, timestamp.epochSeconds)),
             store.receivedMessages,
         )
+    }
+
+    @Test
+    fun save_failsOnDeletionError() {
+        val feed = uniquePhotoFeed()
+        val (sut, store) = makeSut()
+        val deletionError = Exception()
+        store.completeDeletionWithError(deletionError)
+
+        val receivedError = assertFails { sut.save(feed) }
+
+        assertEquals(deletionError, receivedError)
+    }
+
+    @Test
+    fun save_failsOnInsertionError() {
+        val feed = uniquePhotoFeed()
+        val (sut, store) = makeSut()
+        val insertionError = Exception()
+        store.completeInsertionWithError(insertionError)
+
+        val receivedError = assertFails { sut.save(feed) }
+
+        assertEquals(insertionError, receivedError)
     }
 
     // region Helpers
@@ -319,6 +344,7 @@ class LocalFeedRepositoryTests {
 
         private var retrievalResult: Result<CachedFeed?>? = null
         private var deletionResult: Result<Unit?>? = null
+        private var insertionResult: Result<Unit?>? = null
 
         override fun retrieve(): CachedFeed? {
             receivedMessages.add(Retrieve)
@@ -352,6 +378,11 @@ class LocalFeedRepositoryTests {
 
         override fun insert(feed: List<FeedPhoto>, timestamp: Long) {
             receivedMessages.add(Insert(feed, timestamp))
+            return insertionResult?.getOrThrow() ?: Unit
+        }
+
+        fun completeInsertionWithError(error: Exception) {
+            insertionResult = Result.failure(error)
         }
     }
 

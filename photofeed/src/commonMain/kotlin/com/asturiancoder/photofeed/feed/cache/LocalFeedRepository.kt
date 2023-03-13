@@ -37,12 +37,8 @@ class LocalFeedRepository(
         }
     }
 
-    override fun save(feed: List<FeedPhoto>): Result<Unit> {
-        try {
-            store.deleteCachedFeed()
-            store.insert(feed, currentTimestamp())
-        } catch (exception: Exception) {
-        }
-        return Result.success(Unit)
+    override fun save(feed: List<FeedPhoto>) {
+        store.deleteCachedFeed()
+        store.insert(feed, currentTimestamp())
     }
 }
