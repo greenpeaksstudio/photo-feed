@@ -8,6 +8,8 @@ class LocalFeedRepository(
     private val currentTimestamp: () -> Long,
 ) : FeedLoader {
 
+    private object InvalidCache : Exception()
+
     override fun load(): Result<List<FeedPhoto>> {
         return try {
             val cache = store.retrieve()
@@ -24,7 +26,11 @@ class LocalFeedRepository(
 
     fun validateCache() {
         try {
-            store.retrieve()
+            val cache = store.retrieve()
+
+            if (cache != null && !FeedCachePolicy.validate(cache.timestamp, currentTimestamp())) {
+                throw InvalidCache
+            }
         } catch (exception: Exception) {
             store.deleteCachedFeed()
         }

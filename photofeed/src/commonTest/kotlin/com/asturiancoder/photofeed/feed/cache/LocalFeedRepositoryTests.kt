@@ -121,6 +121,19 @@ class LocalFeedRepositoryTests {
         assertEquals(listOf(RETRIEVE), store.receivedMessages)
     }
 
+    @Test
+    fun validateCache_deletesCacheOnExpiration() {
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge()
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
+        store.completeRetrievalWith(feed, expirationTimestamp)
+
+        sut.validateCache()
+
+        assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
+    }
+
     // region Helpers
 
     private fun makeSut(
