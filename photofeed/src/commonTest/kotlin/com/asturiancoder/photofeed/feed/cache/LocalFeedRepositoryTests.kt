@@ -98,6 +98,16 @@ class LocalFeedRepositoryTests {
         assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
     }
 
+    @Test
+    fun validateCache_doesNotDeleteCacheOnEmptyCache() {
+        val (sut, store) = makeSut()
+        store.completeRetrievalWithEmptyCache()
+
+        sut.validateCache()
+
+        assertEquals(listOf(RETRIEVE), store.receivedMessages)
+    }
+
     // region Helpers
 
     private fun makeSut(
