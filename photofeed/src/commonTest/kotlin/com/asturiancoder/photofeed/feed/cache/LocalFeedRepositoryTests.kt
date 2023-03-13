@@ -272,6 +272,15 @@ class LocalFeedRepositoryTests {
         assertEquals(insertionError, receivedError)
     }
 
+    @Test
+    fun save_succeedsOnSuccessfulCacheInsertion() {
+        val feed = uniquePhotoFeed()
+        val (sut, store) = makeSut()
+        store.completeInsertionSuccessfully()
+
+        sut.save(feed)
+    }
+
     // region Helpers
 
     private fun makeSut(
@@ -383,6 +392,10 @@ class LocalFeedRepositoryTests {
 
         fun completeInsertionWithError(error: Exception) {
             insertionResult = Result.failure(error)
+        }
+
+        fun completeInsertionSuccessfully() {
+            insertionResult = Result.success(Unit)
         }
     }
 
