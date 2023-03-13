@@ -50,14 +50,16 @@ internal object FeedPhotosMapper {
             }
     }
 
+    private object InvalidData : Exception()
+
     fun map(response: HttpResponse): List<FeedPhoto> {
-        if (response.code != HttpStatusCode.OK) throw RemoteFeedLoader.Error.InvalidData
+        if (response.code != HttpStatusCode.OK) throw InvalidData
 
         try {
             val root = Json.decodeFromString<Root>(response.jsonString)
             return root.feed
         } catch (exception: SerializationException) {
-            throw RemoteFeedLoader.Error.InvalidData
+            throw InvalidData
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.asturiancoder.photofeed.feed.api
 
+import com.asturiancoder.photofeed.feed.api.RemoteFeedRepository.Error
 import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
@@ -14,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class RemoteFeedLoaderTests {
+class RemoteFeedRepositoryTests {
 
     @Test
     fun init_doesNotStartRequestFromUrl() {
@@ -49,7 +50,7 @@ class RemoteFeedLoaderTests {
         val (sut, client) = makeSut()
         val clientError = Exception()
 
-        expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.Connectivity)) {
+        expect(sut, expectedResult = Result.failure(Error.Connectivity)) {
             client.completeWithError(clientError)
         }
     }
@@ -61,7 +62,7 @@ class RemoteFeedLoaderTests {
         val samples = listOf(199, 201, 300, 400, 500)
         val json = makePhotosJson(listOf())
         samples.forEach { httpCode ->
-            expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.InvalidData)) {
+            expect(sut, expectedResult = Result.failure(Error.InvalidData)) {
                 client.completeWithResponse(makeResponse(httpCode, json))
             }
         }
@@ -72,7 +73,7 @@ class RemoteFeedLoaderTests {
         val invalidJson = "invalidJson"
         val (sut, client) = makeSut()
 
-        expect(sut, expectedResult = Result.failure(RemoteFeedLoader.Error.InvalidData)) {
+        expect(sut, expectedResult = Result.failure(Error.InvalidData)) {
             client.completeWithResponse(makeResponse(200, invalidJson))
         }
     }
@@ -117,7 +118,7 @@ class RemoteFeedLoaderTests {
 
     private fun makeSut(url: String = "https://a-url.com"): Pair<FeedLoader, HttpClientSpy> {
         val client = HttpClientSpy()
-        val sut = RemoteFeedLoader(url, client)
+        val sut = RemoteFeedRepository(url, client)
 
         return sut to client
     }

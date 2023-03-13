@@ -3,10 +3,12 @@ package com.asturiancoder.photofeed.feed.cache
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
-class LocalFeedLoader(
+class LocalFeedRepository(
     private val store: FeedStore,
     private val currentTimestamp: () -> Long,
 ) : FeedLoader {
+
+    private object InvalidCache : Exception()
 
     override fun load(): Result<List<FeedPhoto>> {
         return try {
@@ -19,6 +21,18 @@ class LocalFeedLoader(
             }
         } catch (exception: Exception) {
             Result.failure(exception)
+        }
+    }
+
+    fun validateCache() {
+        try {
+            val cache = store.retrieve()
+
+            if (cache != null && !FeedCachePolicy.validate(cache.timestamp, currentTimestamp())) {
+                throw InvalidCache
+            }
+        } catch (exception: Exception) {
+            store.deleteCachedFeed()
         }
     }
 }

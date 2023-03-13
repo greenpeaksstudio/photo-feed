@@ -4,7 +4,7 @@ import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
-class RemoteFeedLoader(
+class RemoteFeedRepository(
     private val url: String,
     private val client: HttpClient,
 ) : FeedLoader {
@@ -25,8 +25,8 @@ class RemoteFeedLoader(
     private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
         return try {
             Result.success(FeedPhotosMapper.map(response))
-        } catch (exception: Error.InvalidData) {
-            Result.failure(exception)
+        } catch (exception: Exception) {
+            Result.failure(Error.InvalidData)
         }
     }
 }

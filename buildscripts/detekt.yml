@@ -255,7 +255,7 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    excludes: ['**/RemoteFeedLoader.kt']
+    excludes: ['**/RemoteFeedRepository.kt', '**/LocalFeedRepository.kt']
     active: true
     ignoredExceptionTypes:
       - 'InterruptedException'
@@ -285,7 +285,7 @@ exceptions:
     active: true
   TooGenericExceptionCaught:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/LocalFeedLoader.kt', '**/RemoteFeedLoader.kt']
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/LocalFeedRepository.kt', '**/RemoteFeedRepository.kt']
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'
       - 'Error'
