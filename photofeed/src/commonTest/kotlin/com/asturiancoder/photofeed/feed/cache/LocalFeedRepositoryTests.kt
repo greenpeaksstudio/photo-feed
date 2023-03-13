@@ -37,7 +37,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut()
         val retrievalError = Exception()
 
-        expect(sut, expectedResult = Result.failure(retrievalError)) {
+        sut.expectLoad(expectedResult = Result.failure(retrievalError)) {
             store.completeRetrievalWithError(retrievalError)
         }
     }
@@ -46,7 +46,7 @@ class LocalFeedRepositoryTests {
     fun load_deliversNoPhotosOnEmptyCache() {
         val (sut, store) = makeSut()
 
-        expect(sut, expectedResult = Result.success(emptyList())) {
+        sut.expectLoad(expectedResult = Result.success(emptyList())) {
             store.completeRetrievalWithEmptyCache()
         }
     }
@@ -58,7 +58,7 @@ class LocalFeedRepositoryTests {
         val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        expect(sut, expectedResult = Result.success(feed)) {
+        sut.expectLoad(expectedResult = Result.success(feed)) {
             store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
         }
     }
@@ -70,7 +70,7 @@ class LocalFeedRepositoryTests {
         val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge()
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        expect(sut, expectedResult = Result.success(emptyList())) {
+        sut.expectLoad(expectedResult = Result.success(emptyList())) {
             store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
         }
     }
@@ -82,7 +82,7 @@ class LocalFeedRepositoryTests {
         val expiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        expect(sut, expectedResult = Result.success(emptyList())) {
+        sut.expectLoad(expectedResult = Result.success(emptyList())) {
             store.completeRetrievalWith(feed = feed, timestamp = expiredTimestamp)
         }
     }
@@ -170,14 +170,13 @@ class LocalFeedRepositoryTests {
         return sut to store
     }
 
-    private fun expect(
-        sut: LocalFeedRepository,
+    private fun LocalFeedRepository.expectLoad(
         expectedResult: Result<List<FeedPhoto>>,
-        action: () -> Unit,
+        onAction: () -> Unit,
     ) {
-        action()
+        onAction()
 
-        val receivedResult = sut.load()
+        val receivedResult = load()
 
         assertEquals(
             expectedResult,
