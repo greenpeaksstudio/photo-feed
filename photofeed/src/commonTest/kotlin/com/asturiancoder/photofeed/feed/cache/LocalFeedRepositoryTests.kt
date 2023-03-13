@@ -250,35 +250,31 @@ class LocalFeedRepositoryTests {
 
     @Test
     fun save_failsOnDeletionError() {
-        val feed = uniquePhotoFeed()
         val (sut, store) = makeSut()
         val deletionError = Exception()
-        store.completeDeletionWithError(deletionError)
 
-        val receivedError = assertFails { sut.save(feed) }
-
-        assertEquals(deletionError, receivedError)
+        sut.expectSave(expectedError = deletionError) {
+            store.completeDeletionWithError(deletionError)
+        }
     }
 
     @Test
     fun save_failsOnInsertionError() {
-        val feed = uniquePhotoFeed()
         val (sut, store) = makeSut()
         val insertionError = Exception()
-        store.completeInsertionWithError(insertionError)
 
-        val receivedError = assertFails { sut.save(feed) }
-
-        assertEquals(insertionError, receivedError)
+        sut.expectSave(expectedError = insertionError) {
+            store.completeInsertionWithError(insertionError)
+        }
     }
 
     @Test
     fun save_succeedsOnSuccessfulCacheInsertion() {
-        val feed = uniquePhotoFeed()
         val (sut, store) = makeSut()
-        store.completeInsertionSuccessfully()
 
-        sut.save(feed)
+        sut.expectSave(expectedError = null) {
+            store.completeInsertionSuccessfully()
+        }
     }
 
     // region Helpers
@@ -320,6 +316,19 @@ class LocalFeedRepositoryTests {
             receivedResult,
             "Expected result $expectedResult, got $receivedResult instead",
         )
+    }
+
+    private fun LocalFeedRepository.expectSave(
+        expectedError: Exception?,
+        onAction: () -> Unit,
+    ) {
+        onAction()
+
+        try {
+            save(uniquePhotoFeed())
+        } catch (exception: Exception) {
+            assertEquals(expectedError, exception)
+        }
     }
 
     private fun uniquePhotoFeed(): List<FeedPhoto> =
