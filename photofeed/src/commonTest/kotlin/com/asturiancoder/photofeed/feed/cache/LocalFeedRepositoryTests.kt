@@ -159,11 +159,21 @@ class LocalFeedRepositoryTests {
     }
 
     @Test
-    fun validateCache_successOnSuccessfulDeletionAfterFailedRetrieval() {
+    fun validateCache_succeedsOnSuccessfulDeletionAfterFailedRetrieval() {
         val (sut, store) = makeSut()
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
             store.completeRetrievalWithError(Exception())
+            store.completeDeletionWithSuccessfully()
+        }
+    }
+
+    @Test
+    fun validateCache_succeedsOnEmptyCache() {
+        val (sut, store) = makeSut()
+
+        sut.expectValidateCache(expectedResult = Result.success(Unit)) {
+            store.completeRetrievalWithEmptyCache()
             store.completeDeletionWithSuccessfully()
         }
     }
