@@ -159,6 +159,17 @@ class LocalFeedRepositoryTests {
         assertEquals(Result.failure(deletionError), receivedResult)
     }
 
+    @Test
+    fun validateCache_successOnSuccessfulDeletionAfterFailedRetrieval() {
+        val (sut, store) = makeSut()
+        store.completeRetrievalWithError(Exception())
+        store.completeDeletionWithSuccessfully()
+
+        val receivedResult = Result.runCatching { sut.validateCache() }
+
+        assertEquals(Result.success(Unit), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(
@@ -239,6 +250,10 @@ class LocalFeedRepositoryTests {
 
         fun completeDeletionWithError(error: Exception) {
             deletionResult = Result.failure(error)
+        }
+
+        fun completeDeletionWithSuccessfully() {
+            deletionResult = Result.success(Unit)
         }
     }
 
