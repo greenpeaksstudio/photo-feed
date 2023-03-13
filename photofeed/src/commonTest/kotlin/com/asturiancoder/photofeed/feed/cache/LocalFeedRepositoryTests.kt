@@ -223,12 +223,28 @@ class LocalFeedRepositoryTests {
     @Test
     fun save_doesNotRequestCacheInsertionOnDeletionError() {
         val feed = uniquePhotoFeed()
+        val deletionError = Exception()
         val (sut, store) = makeSut()
-        store.completeDeletionWithError(Exception())
+        store.completeDeletionWithError(deletionError)
 
         sut.save(feed)
 
         assertEquals(listOf<Message>(DeleteCachedFeed), store.receivedMessages)
+    }
+
+    @Test
+    fun save_requestsNewCacheInsertionWithTimestampOnSuccessfulDeletion() {
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now()
+        val (sut, store) = makeSut(currentTimestamp = { timestamp })
+        store.completeDeletionSuccessfully()
+
+        sut.save(feed)
+
+        assertEquals(
+            listOf(DeleteCachedFeed, Insert(feed, timestamp.epochSeconds)),
+            store.receivedMessages,
+        )
     }
 
     // region Helpers
