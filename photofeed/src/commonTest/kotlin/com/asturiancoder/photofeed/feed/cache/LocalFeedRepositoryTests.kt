@@ -178,6 +178,19 @@ class LocalFeedRepositoryTests {
         }
     }
 
+    @Test
+    fun validateCache_succeedsOnNonExpiredCache() {
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
+
+        sut.expectValidateCache(expectedResult = Result.success(Unit)) {
+            store.completeRetrievalWith(feed, nonExpiredTimestamp)
+            store.completeDeletionWithSuccessfully()
+        }
+    }
+
     // region Helpers
 
     private fun makeSut(
