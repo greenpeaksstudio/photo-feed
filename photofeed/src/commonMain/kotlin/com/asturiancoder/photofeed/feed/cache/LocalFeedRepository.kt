@@ -1,12 +1,13 @@
 package com.asturiancoder.photofeed.feed.cache
 
+import com.asturiancoder.photofeed.feed.feature.FeedCache
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
 class LocalFeedRepository(
     private val store: FeedStore,
     private val currentTimestamp: () -> Long,
-) : FeedLoader {
+) : FeedLoader, FeedCache {
 
     private object InvalidCache : Exception()
 
@@ -34,5 +35,13 @@ class LocalFeedRepository(
         } catch (exception: Exception) {
             store.deleteCachedFeed()
         }
+    }
+
+    override fun save(feed: List<FeedPhoto>): Result<Unit> {
+        try {
+            store.deleteCachedFeed()
+        } catch (exception: Exception) {
+        }
+        return Result.success(Unit)
     }
 }

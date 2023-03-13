@@ -1,7 +1,9 @@
 package com.asturiancoder.photofeed.feed.cache
 
-import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.DELETE_CACHED_FEED
-import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.RETRIEVE
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.DeleteCachedFeed
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.Insert
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.Retrieve
 import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
@@ -29,7 +31,7 @@ class LocalFeedRepositoryTests {
 
         sut.load()
 
-        assertEquals(listOf(RETRIEVE), store.receivedMessages)
+        assertEquals(listOf<Message>(Retrieve), store.receivedMessages)
     }
 
     @Test
@@ -95,7 +97,7 @@ class LocalFeedRepositoryTests {
 
         sut.validateCache()
 
-        assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
+        assertEquals(listOf(Retrieve, DeleteCachedFeed), store.receivedMessages)
     }
 
     @Test
@@ -105,7 +107,7 @@ class LocalFeedRepositoryTests {
 
         sut.validateCache()
 
-        assertEquals(listOf(RETRIEVE), store.receivedMessages)
+        assertEquals(listOf<Message>(Retrieve), store.receivedMessages)
     }
 
     @Test
@@ -118,7 +120,7 @@ class LocalFeedRepositoryTests {
 
         sut.validateCache()
 
-        assertEquals(listOf(RETRIEVE), store.receivedMessages)
+        assertEquals(listOf<Message>(Retrieve), store.receivedMessages)
     }
 
     @Test
@@ -131,7 +133,7 @@ class LocalFeedRepositoryTests {
 
         sut.validateCache()
 
-        assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
+        assertEquals(listOf(Retrieve, DeleteCachedFeed), store.receivedMessages)
     }
 
     @Test
@@ -144,7 +146,7 @@ class LocalFeedRepositoryTests {
 
         sut.validateCache()
 
-        assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
+        assertEquals(listOf(Retrieve, DeleteCachedFeed), store.receivedMessages)
     }
 
     @Test
@@ -218,6 +220,17 @@ class LocalFeedRepositoryTests {
         }
     }
 
+    @Test
+    fun save_doesNotRequestCacheInsertionOnDeletionError() {
+        val feed = uniquePhotoFeed()
+        val (sut, store) = makeSut()
+        store.completeDeletionWithError(Exception())
+
+        sut.save(feed)
+
+        assertEquals(listOf<Message>(DeleteCachedFeed), store.receivedMessages)
+    }
+
     // region Helpers
 
     private fun makeSut(
@@ -280,8 +293,10 @@ class LocalFeedRepositoryTests {
         this.plus(seconds, DateTimeUnit.SECOND)
 
     class FeedStoreSpy : FeedStore {
-        enum class Message {
-            RETRIEVE, DELETE_CACHED_FEED,
+        sealed class Message {
+            object Retrieve : Message()
+            object DeleteCachedFeed : Message()
+            data class Insert(val feed: List<FeedPhoto>, val timestamp: Long) : Message()
         }
 
         val receivedMessages = mutableListOf<Message>()
@@ -290,7 +305,7 @@ class LocalFeedRepositoryTests {
         private var deletionResult: Result<Unit?>? = null
 
         override fun retrieve(): CachedFeed? {
-            receivedMessages.add(RETRIEVE)
+            receivedMessages.add(Retrieve)
             return retrievalResult?.getOrThrow()
         }
 
@@ -307,7 +322,7 @@ class LocalFeedRepositoryTests {
         }
 
         override fun deleteCachedFeed() {
-            receivedMessages.add(DELETE_CACHED_FEED)
+            receivedMessages.add(DeleteCachedFeed)
             return deletionResult?.getOrThrow() ?: Unit
         }
 
@@ -317,6 +332,10 @@ class LocalFeedRepositoryTests {
 
         fun completeDeletionSuccessfully() {
             deletionResult = Result.success(Unit)
+        }
+
+        override fun insert(feed: List<FeedPhoto>, timestamp: Long) {
+            receivedMessages.add(Insert(feed, timestamp))
         }
     }
 
