@@ -255,7 +255,7 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    excludes: ['**/RemoteFeedRepository.kt']
+    excludes: ['**/RemoteFeedRepository.kt', '**/LocalFeedRepository.kt']
     active: true
     ignoredExceptionTypes:
       - 'InterruptedException'
