@@ -1,5 +1,6 @@
 package com.asturiancoder.photofeed.feed.cache
 
+import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.DELETE_CACHED_FEED
 import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.RETRIEVE
 import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
@@ -86,6 +87,17 @@ class LocalFeedRepositoryTests {
         }
     }
 
+    @Test
+    fun validateCache_deletesCacheOnRetrievalError() {
+        val (sut, store) = makeSut()
+        val retrievalError = Exception()
+        store.completeRetrievalWithError(retrievalError)
+
+        sut.validateCache()
+
+        assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
+    }
+
     // region Helpers
 
     private fun makeSut(
@@ -135,7 +147,7 @@ class LocalFeedRepositoryTests {
 
     class FeedStoreSpy : FeedStore {
         enum class Message {
-            RETRIEVE,
+            RETRIEVE, DELETE_CACHED_FEED,
         }
 
         val receivedMessages = mutableListOf<Message>()
@@ -157,6 +169,10 @@ class LocalFeedRepositoryTests {
 
         fun completeRetrievalWith(feed: List<FeedPhoto>, timestamp: Instant) {
             retrievalResult = Result.success(CachedFeed(feed, timestamp.epochSeconds))
+        }
+
+        override fun deleteCachedFeed() {
+            receivedMessages.add(DELETE_CACHED_FEED)
         }
     }
 

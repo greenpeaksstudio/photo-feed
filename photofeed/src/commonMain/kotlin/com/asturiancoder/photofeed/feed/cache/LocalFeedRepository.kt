@@ -21,4 +21,12 @@ class LocalFeedRepository(
             Result.failure(exception)
         }
     }
+
+    fun validateCache() {
+        try {
+            store.retrieve()
+        } catch (exception: Exception) {
+            store.deleteCachedFeed()
+        }
+    }
 }
