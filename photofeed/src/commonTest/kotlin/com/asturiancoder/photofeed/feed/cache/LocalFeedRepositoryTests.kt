@@ -191,6 +191,20 @@ class LocalFeedRepositoryTests {
         }
     }
 
+    @Test
+    fun validateCache_failsOnDeletionErrorAfterExpiredCache() {
+        val deletionError = Exception()
+        val feed = uniquePhotoFeed()
+        val fixedCurrentTimestamp = Clock.System.now()
+        val expiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
+        val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
+
+        sut.expectValidateCache(expectedResult = Result.failure(deletionError)) {
+            store.completeRetrievalWith(feed, expiredTimestamp)
+            store.completeDeletionWithError(deletionError)
+        }
+    }
+
     // region Helpers
 
     private fun makeSut(
