@@ -147,6 +147,18 @@ class LocalFeedRepositoryTests {
         assertEquals(listOf(RETRIEVE, DELETE_CACHED_FEED), store.receivedMessages)
     }
 
+    @Test
+    fun validateCache_failsOnDeletionErrorAfterFailedRetrieval() {
+        val (sut, store) = makeSut()
+        val deletionError = Exception()
+        store.completeRetrievalWithError(Exception())
+        store.completeDeletionWithError(deletionError)
+
+        val receivedResult = Result.runCatching { sut.validateCache() }
+
+        assertEquals(Result.failure(deletionError), receivedResult)
+    }
+
     // region Helpers
 
     private fun makeSut(
@@ -202,6 +214,7 @@ class LocalFeedRepositoryTests {
         val receivedMessages = mutableListOf<Message>()
 
         private var retrievalResult: Result<CachedFeed?>? = null
+        private var deletionResult: Result<Unit?>? = null
 
         override fun retrieve(): CachedFeed? {
             receivedMessages.add(RETRIEVE)
@@ -222,6 +235,11 @@ class LocalFeedRepositoryTests {
 
         override fun deleteCachedFeed() {
             receivedMessages.add(DELETE_CACHED_FEED)
+            return deletionResult?.getOrThrow() ?: Unit
+        }
+
+        fun completeDeletionWithError(error: Exception) {
+            deletionResult = Result.failure(error)
         }
     }
 
