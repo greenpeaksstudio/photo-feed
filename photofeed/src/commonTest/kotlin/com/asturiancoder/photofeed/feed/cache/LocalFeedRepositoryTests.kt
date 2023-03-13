@@ -164,7 +164,7 @@ class LocalFeedRepositoryTests {
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
             store.completeRetrievalWithError(Exception())
-            store.completeDeletionWithSuccessfully()
+            store.completeDeletionSuccessfully()
         }
     }
 
@@ -174,7 +174,7 @@ class LocalFeedRepositoryTests {
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
             store.completeRetrievalWithEmptyCache()
-            store.completeDeletionWithSuccessfully()
+            store.completeDeletionSuccessfully()
         }
     }
 
@@ -187,7 +187,7 @@ class LocalFeedRepositoryTests {
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
             store.completeRetrievalWith(feed, nonExpiredTimestamp)
-            store.completeDeletionWithSuccessfully()
+            store.completeDeletionSuccessfully()
         }
     }
 
@@ -214,7 +214,7 @@ class LocalFeedRepositoryTests {
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
             store.completeRetrievalWith(feed, expiredTimestamp)
-            store.completeDeletionWithSuccessfully()
+            store.completeDeletionSuccessfully()
         }
     }
 
@@ -315,7 +315,7 @@ class LocalFeedRepositoryTests {
             deletionResult = Result.failure(error)
         }
 
-        fun completeDeletionWithSuccessfully() {
+        fun completeDeletionSuccessfully() {
             deletionResult = Result.success(Unit)
         }
     }
