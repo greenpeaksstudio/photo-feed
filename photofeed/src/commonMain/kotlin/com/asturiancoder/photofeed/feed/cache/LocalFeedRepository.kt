@@ -11,17 +11,13 @@ class LocalFeedRepository(
 
     private object InvalidCache : Exception()
 
-    override fun load(): Result<List<FeedPhoto>> {
-        return try {
-            val cache = store.retrieve()
+    override fun load(): List<FeedPhoto> {
+        val cache = store.retrieve()
 
-            if (cache != null && FeedCachePolicy.validate(cache.timestamp, currentTimestamp())) {
-                Result.success(cache.feed)
-            } else {
-                Result.success(emptyList())
-            }
-        } catch (exception: Exception) {
-            Result.failure(exception)
+        return if (cache != null && FeedCachePolicy.validate(cache.timestamp, currentTimestamp())) {
+            cache.feed
+        } else {
+            emptyList()
         }
     }
 

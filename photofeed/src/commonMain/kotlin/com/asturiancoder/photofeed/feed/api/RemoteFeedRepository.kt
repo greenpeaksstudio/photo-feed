@@ -1,6 +1,5 @@
 package com.asturiancoder.photofeed.feed.api
 
-import com.asturiancoder.photofeed.feed.api.model.HttpResponse
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 
@@ -14,19 +13,17 @@ class RemoteFeedRepository(
         object InvalidData : Error()
     }
 
-    override fun load(): Result<List<FeedPhoto>> {
-        return try {
-            map(client.get(url = url))
+    override fun load(): List<FeedPhoto> {
+        val response = try {
+            client.get(url = url)
         } catch (exception: Exception) {
-            Result.failure(Error.Connectivity)
+            throw Error.Connectivity
         }
-    }
 
-    private fun map(response: HttpResponse): Result<List<FeedPhoto>> {
         return try {
-            Result.success(FeedPhotosMapper.map(response))
+            FeedPhotosMapper.map(response)
         } catch (exception: Exception) {
-            Result.failure(Error.InvalidData)
+            throw Error.InvalidData
         }
     }
 }
