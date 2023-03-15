@@ -294,7 +294,7 @@ class LocalFeedRepositoryTests {
     ) {
         onAction()
 
-        val receivedResult = load()
+        val receivedResult = runCatching { load() }
 
         assertEquals(
             expectedResult,

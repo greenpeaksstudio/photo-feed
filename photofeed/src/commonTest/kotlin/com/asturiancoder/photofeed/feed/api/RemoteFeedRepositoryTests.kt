@@ -130,7 +130,7 @@ class RemoteFeedRepositoryTests {
     ) {
         action()
 
-        val receivedResult = sut.load()
+        val receivedResult = runCatching { sut.load() }
 
         assertEquals(
             expectedResult,
@@ -185,10 +185,13 @@ class RemoteFeedRepositoryTests {
         return Json.encodeToString(root)
     }
 
-    private class HttpClientSpy : HttpClient {
+    private inner class HttpClientSpy : HttpClient {
         val requestedUrls = mutableListOf<String>()
 
-        private val defaultResponse = HttpResponse(code = HttpStatusCode.OK, jsonString = "")
+        private val defaultResponse = HttpResponse(
+            code = HttpStatusCode.OK,
+            jsonString = makePhotosJson(listOf()),
+        )
         private var getResult: Result<HttpResponse> = Result.success(defaultResponse)
 
         override fun get(url: String): HttpResponse {
