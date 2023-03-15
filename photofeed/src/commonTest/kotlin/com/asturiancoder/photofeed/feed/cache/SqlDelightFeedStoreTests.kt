@@ -13,4 +13,15 @@ class SqlDelightFeedStoreTests {
 
         assertNull(receivedCache)
     }
+
+    @Test
+    fun retrieve_hasNoSideEffectsOnEmptyCache() {
+        val sut = SqlDelightFeedStore()
+
+        var receivedCache = sut.retrieve()
+        assertNull(receivedCache)
+
+        receivedCache = sut.retrieve()
+        assertNull(receivedCache)
+    }
 }
