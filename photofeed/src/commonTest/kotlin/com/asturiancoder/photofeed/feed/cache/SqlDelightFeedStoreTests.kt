@@ -26,11 +26,11 @@ class SqlDelightFeedStoreTests {
     fun retrieve_hasNoSideEffectsOnEmptyCache() {
         val sut = makeSut()
 
-        var receivedCache = sut.retrieve()
-        assertNull(receivedCache)
+        val firstReceivedCache = sut.retrieve()
+        val lastReceivedCache = sut.retrieve()
 
-        receivedCache = sut.retrieve()
-        assertNull(receivedCache)
+        assertNull(firstReceivedCache)
+        assertNull(lastReceivedCache)
     }
 
     @Test
@@ -44,6 +44,22 @@ class SqlDelightFeedStoreTests {
         val receivedCache = sut.retrieve()
 
         assertEquals(CachedFeed(feed, timestamp), receivedCache)
+    }
+
+    @Test
+    fun retrieve_hasNoSideEffectsOnNonEmptyCache() {
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        val sut = makeSut()
+
+        sut.insert(feed, timestamp)
+
+        val firstReceivedCache = sut.retrieve()
+        val lastReceivedCache = sut.retrieve()
+
+        val expectedCache = CachedFeed(feed, timestamp)
+        assertEquals(expectedCache, firstReceivedCache)
+        assertEquals(expectedCache, lastReceivedCache)
     }
 
     // region Helpers
