@@ -24,6 +24,9 @@ class SqlDelightFeedStore(
         queries.clear()
         queries.insert(feed.toLocal(), timestamp)
     }
+
+    fun deleteCachedFeed() {
+    }
 }
 
 private fun List<LocalFeedPhoto>.toModel(): List<FeedPhoto> = mapNotNull { localFeedPhoto ->

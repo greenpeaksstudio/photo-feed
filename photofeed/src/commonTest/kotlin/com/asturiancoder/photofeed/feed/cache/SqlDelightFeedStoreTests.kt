@@ -104,8 +104,18 @@ class SqlDelightFeedStoreTests {
         sut.insert(latestFeed, latestTimestamp)
 
         val receivedCache = sut.retrieve()
-
         assertEquals(CachedFeed(latestFeed, latestTimestamp), receivedCache)
+    }
+
+    @Test
+    fun delete_deliversNoErrorOnEmptyCache() {
+        val sut = makeSut()
+
+        try {
+            sut.deleteCachedFeed()
+        } catch (exception: Exception) {
+            fail("Expected to delete without error, got $exception instead")
+        }
     }
 
     // region Helpers
