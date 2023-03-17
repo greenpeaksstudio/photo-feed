@@ -1,5 +1,8 @@
 package com.asturiancoder.photofeed.feed.cache.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class LocalFeedPhoto(
     val id: String,
     val description: String?,
