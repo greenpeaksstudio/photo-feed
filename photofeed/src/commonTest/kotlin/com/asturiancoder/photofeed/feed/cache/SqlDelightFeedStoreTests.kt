@@ -20,6 +20,7 @@ class SqlDelightFeedStoreTests {
         val sut = makeSut()
 
         val receivedCache = sut.retrieve()
+
         assertNull(receivedCache)
     }
 
@@ -36,10 +37,9 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun retrieve_deliversFoundValuesOnNonEmptyCache() {
+        val sut = makeSut()
         val feed = uniquePhotoFeed()
         val timestamp = Clock.System.now().epochSeconds
-        val sut = makeSut()
-
         sut.insert(feed, timestamp)
 
         val receivedCache = sut.retrieve()
@@ -49,10 +49,9 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun retrieve_hasNoSideEffectsOnNonEmptyCache() {
+        val sut = makeSut()
         val feed = uniquePhotoFeed()
         val timestamp = Clock.System.now().epochSeconds
-        val sut = makeSut()
-
         sut.insert(feed, timestamp)
 
         val firstReceivedCache = sut.retrieve()
@@ -65,9 +64,9 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun insert_deliversNoErrorOnEmptyCache() {
+        val sut = makeSut()
         val feed = uniquePhotoFeed()
         val timestamp = Clock.System.now().epochSeconds
-        val sut = makeSut()
 
         try {
             sut.insert(feed, timestamp)
@@ -78,10 +77,9 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun insert_deliversNoErrorOnNonEmptyCache() {
+        val sut = makeSut()
         val feed = uniquePhotoFeed()
         val timestamp = Clock.System.now().epochSeconds
-        val sut = makeSut()
-
         sut.insert(feed, timestamp)
 
         try {
@@ -94,10 +92,7 @@ class SqlDelightFeedStoreTests {
     @Test
     fun insert_overridesPreviouslyInsertedCacheValues() {
         val sut = makeSut()
-
-        val feed = uniquePhotoFeed()
-        val timestamp = Clock.System.now().epochSeconds
-        sut.insert(feed, timestamp)
+        sut.insert(uniquePhotoFeed(), Clock.System.now().epochSeconds)
 
         val latestFeed = uniquePhotoFeed()
         val latestTimestamp = Clock.System.now().epochSeconds
