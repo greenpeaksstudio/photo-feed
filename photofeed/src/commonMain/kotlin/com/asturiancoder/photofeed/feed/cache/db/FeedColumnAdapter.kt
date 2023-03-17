@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 class FeedColumnAdapter : ColumnAdapter<List<LocalFeedPhoto>, String> {
 
     override fun decode(databaseValue: String): List<LocalFeedPhoto> {
-        TODO("Not yet implemented")
+        return emptyList()
     }
 
     override fun encode(value: List<LocalFeedPhoto>): String {
