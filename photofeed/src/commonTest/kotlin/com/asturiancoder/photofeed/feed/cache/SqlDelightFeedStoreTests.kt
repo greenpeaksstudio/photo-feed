@@ -5,7 +5,7 @@ import com.asturiancoder.photofeed.feed.cache.db.LocalFeedCache
 import com.asturiancoder.photofeed.feed.cache.db.PhotoFeedDB
 import com.asturiancoder.photofeed.feed.cache.db.TestSqlDelightDriverFactory
 import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
-import com.asturiancoder.photofeed.feed.feature.FeedPhoto
+import com.asturiancoder.photofeed.feed.cache.model.LocalFeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
 import kotlinx.datetime.Clock
 import kotlin.test.Test
@@ -159,16 +159,17 @@ class SqlDelightFeedStoreTests {
         return SqlDelightFeedStore(db)
     }
 
-    private fun uniquePhotoFeed(): List<FeedPhoto> =
+    private fun uniquePhotoFeed(): List<LocalFeedPhoto> =
         listOf(uniquePhoto(), uniquePhoto())
 
-    private fun uniquePhoto() = FeedPhoto(
-        id = Uuid(),
+    private fun uniquePhoto(): LocalFeedPhoto = LocalFeedPhoto(
+        id = Uuid().uuidString,
         description = "A description",
         location = "A location",
         url = "http://a-url.com",
         likes = 0,
-        author = FeedPhoto.Author(name = "An author", imageUrl = "https://an-author-url.com"),
+        authorName = "An author",
+        authorImageUrl = "https://an-author-url.com",
     )
 
     // endregion

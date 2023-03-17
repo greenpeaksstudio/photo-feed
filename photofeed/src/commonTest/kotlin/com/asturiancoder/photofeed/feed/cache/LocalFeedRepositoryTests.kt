@@ -5,6 +5,7 @@ import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStore
 import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.Insert
 import com.asturiancoder.photofeed.feed.cache.LocalFeedRepositoryTests.FeedStoreSpy.Message.Retrieve
 import com.asturiancoder.photofeed.feed.cache.model.CachedFeed
+import com.asturiancoder.photofeed.feed.cache.model.LocalFeedPhoto
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
 import kotlinx.datetime.Clock
@@ -61,8 +62,8 @@ class LocalFeedRepositoryTests {
         val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
-        sut.expectLoad(expectedResult = Result.success(feed)) {
-            store.completeRetrievalWith(feed = feed, timestamp = nonExpiredTimestamp)
+        sut.expectLoad(expectedResult = Result.success(feed.model)) {
+            store.completeRetrievalWith(feed = feed.local, timestamp = nonExpiredTimestamp)
         }
     }
 
@@ -74,7 +75,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         sut.expectLoad(expectedResult = Result.success(emptyList())) {
-            store.completeRetrievalWith(feed = feed, timestamp = expirationTimestamp)
+            store.completeRetrievalWith(feed = feed.local, timestamp = expirationTimestamp)
         }
     }
 
@@ -86,7 +87,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         sut.expectLoad(expectedResult = Result.success(emptyList())) {
-            store.completeRetrievalWith(feed = feed, timestamp = expiredTimestamp)
+            store.completeRetrievalWith(feed = feed.local, timestamp = expiredTimestamp)
         }
     }
 
@@ -117,7 +118,7 @@ class LocalFeedRepositoryTests {
         val fixedCurrentTimestamp = Clock.System.now()
         val nonExpiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = 1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
-        store.completeRetrievalWith(feed, nonExpiredTimestamp)
+        store.completeRetrievalWith(feed.local, nonExpiredTimestamp)
 
         sut.validateCache()
 
@@ -130,7 +131,7 @@ class LocalFeedRepositoryTests {
         val fixedCurrentTimestamp = Clock.System.now()
         val expirationTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge()
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
-        store.completeRetrievalWith(feed, expirationTimestamp)
+        store.completeRetrievalWith(feed.local, expirationTimestamp)
 
         sut.validateCache()
 
@@ -143,7 +144,7 @@ class LocalFeedRepositoryTests {
         val fixedCurrentTimestamp = Clock.System.now()
         val expiredTimestamp = fixedCurrentTimestamp.minusFeedCacheMaxAge().adding(seconds = -1)
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
-        store.completeRetrievalWith(feed, expiredTimestamp)
+        store.completeRetrievalWith(feed.local, expiredTimestamp)
 
         sut.validateCache()
 
@@ -189,7 +190,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
-            store.completeRetrievalWith(feed, nonExpiredTimestamp)
+            store.completeRetrievalWith(feed.local, nonExpiredTimestamp)
             store.completeDeletionSuccessfully()
         }
     }
@@ -203,7 +204,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         sut.expectValidateCache(expectedResult = Result.failure(deletionError)) {
-            store.completeRetrievalWith(feed, expiredTimestamp)
+            store.completeRetrievalWith(feed.local, expiredTimestamp)
             store.completeDeletionWithError(deletionError)
         }
     }
@@ -216,7 +217,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { fixedCurrentTimestamp })
 
         sut.expectValidateCache(expectedResult = Result.success(Unit)) {
-            store.completeRetrievalWith(feed, expiredTimestamp)
+            store.completeRetrievalWith(feed.local, expiredTimestamp)
             store.completeDeletionSuccessfully()
         }
     }
@@ -228,7 +229,7 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut()
         store.completeDeletionWithError(deletionError)
 
-        assertFails { sut.save(feed) }
+        assertFails { sut.save(feed.model) }
 
         assertEquals(listOf<Message>(DeleteCachedFeed), store.receivedMessages)
     }
@@ -240,10 +241,10 @@ class LocalFeedRepositoryTests {
         val (sut, store) = makeSut(currentTimestamp = { timestamp })
         store.completeDeletionSuccessfully()
 
-        sut.save(feed)
+        sut.save(feed.model)
 
         assertEquals(
-            listOf(DeleteCachedFeed, Insert(feed, timestamp.epochSeconds)),
+            listOf(DeleteCachedFeed, Insert(feed.local, timestamp.epochSeconds)),
             store.receivedMessages,
         )
     }
@@ -325,14 +326,26 @@ class LocalFeedRepositoryTests {
         onAction()
 
         try {
-            save(uniquePhotoFeed())
+            save(uniquePhotoFeed().model)
         } catch (exception: Exception) {
             assertEquals(expectedError, exception)
         }
     }
 
-    private fun uniquePhotoFeed(): List<FeedPhoto> =
-        listOf(uniquePhoto(), uniquePhoto())
+    private data class UniqueFeed(
+        val model: List<FeedPhoto>,
+        val local: List<LocalFeedPhoto>,
+    )
+
+    private fun uniquePhotoFeed(): UniqueFeed {
+        val uniquePhoto1 = uniquePhoto()
+        val uniquePhoto2 = uniquePhoto()
+
+        return UniqueFeed(
+            model = listOf(uniquePhoto1, uniquePhoto2),
+            local = listOf(localFeedPhotoFrom(uniquePhoto1), localFeedPhotoFrom(uniquePhoto2)),
+        )
+    }
 
     private fun uniquePhoto() = FeedPhoto(
         id = Uuid(),
@@ -341,6 +354,16 @@ class LocalFeedRepositoryTests {
         url = "http://a-url.com",
         likes = 0,
         author = FeedPhoto.Author(name = "An author", imageUrl = "https://an-author-url.com"),
+    )
+
+    private fun localFeedPhotoFrom(feedPhoto: FeedPhoto) = LocalFeedPhoto(
+        id = feedPhoto.id.uuidString,
+        description = feedPhoto.description,
+        location = feedPhoto.location,
+        url = feedPhoto.url,
+        likes = feedPhoto.likes,
+        authorName = feedPhoto.author.name,
+        authorImageUrl = feedPhoto.author.imageUrl,
     )
 
     private val feedCacheMaxAgeInDays = 5
@@ -355,7 +378,7 @@ class LocalFeedRepositoryTests {
         sealed class Message {
             object Retrieve : Message()
             object DeleteCachedFeed : Message()
-            data class Insert(val feed: List<FeedPhoto>, val timestamp: Long) : Message()
+            data class Insert(val feed: List<LocalFeedPhoto>, val timestamp: Long) : Message()
         }
 
         val receivedMessages = mutableListOf<Message>()
@@ -377,7 +400,7 @@ class LocalFeedRepositoryTests {
             retrievalResult = Result.success(null)
         }
 
-        fun completeRetrievalWith(feed: List<FeedPhoto>, timestamp: Instant) {
+        fun completeRetrievalWith(feed: List<LocalFeedPhoto>, timestamp: Instant) {
             retrievalResult = Result.success(CachedFeed(feed, timestamp.epochSeconds))
         }
 
@@ -394,7 +417,7 @@ class LocalFeedRepositoryTests {
             deletionResult = Result.success(Unit)
         }
 
-        override fun insert(feed: List<FeedPhoto>, timestamp: Long) {
+        override fun insert(feed: List<LocalFeedPhoto>, timestamp: Long) {
             receivedMessages.add(Insert(feed, timestamp))
             return insertionResult?.getOrThrow() ?: Unit
         }

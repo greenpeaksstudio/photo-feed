@@ -1,8 +1,10 @@
 package com.asturiancoder.photofeed.feed.cache
 
+import com.asturiancoder.photofeed.feed.cache.model.LocalFeedPhoto
 import com.asturiancoder.photofeed.feed.feature.FeedCache
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
+import com.asturiancoder.photofeed.util.Uuid
 
 class LocalFeedRepository(
     private val store: FeedStore,
@@ -15,7 +17,7 @@ class LocalFeedRepository(
         val cache = store.retrieve()
 
         return if (cache != null && FeedCachePolicy.validate(cache.timestamp, currentTimestamp())) {
-            cache.feed
+            cache.feed.toModel()
         } else {
             emptyList()
         }
@@ -35,6 +37,34 @@ class LocalFeedRepository(
 
     override fun save(feed: List<FeedPhoto>) {
         store.deleteCachedFeed()
-        store.insert(feed, currentTimestamp())
+        store.insert(feed.toLocal(), currentTimestamp())
     }
+}
+
+private fun List<LocalFeedPhoto>.toModel(): List<FeedPhoto> = mapNotNull { localFeedPhoto ->
+    Uuid.from(localFeedPhoto.id)?.let {
+        FeedPhoto(
+            id = it,
+            description = localFeedPhoto.description,
+            location = localFeedPhoto.location,
+            url = localFeedPhoto.url,
+            likes = localFeedPhoto.likes,
+            author = FeedPhoto.Author(
+                name = localFeedPhoto.authorName,
+                imageUrl = localFeedPhoto.authorImageUrl,
+            ),
+        )
+    }
+}
+
+private fun List<FeedPhoto>.toLocal(): List<LocalFeedPhoto> = map {
+    LocalFeedPhoto(
+        id = it.id.uuidString,
+        description = it.description,
+        location = it.location,
+        url = it.url,
+        likes = it.likes,
+        authorName = it.author.name,
+        authorImageUrl = it.author.imageUrl,
+    )
 }
