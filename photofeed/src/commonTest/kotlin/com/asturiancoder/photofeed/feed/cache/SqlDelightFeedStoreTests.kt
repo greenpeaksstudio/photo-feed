@@ -142,6 +142,19 @@ class SqlDelightFeedStoreTests {
         }
     }
 
+    @Test
+    fun delete_emptiesPreviouslyInsertedCache() {
+        val sut = makeSut()
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        sut.insert(feed, timestamp)
+
+        sut.deleteCachedFeed()
+
+        val receivedCache = sut.retrieve()
+        assertNull(receivedCache)
+    }
+
     // region Helpers
 
     private fun makeSut(): SqlDelightFeedStore {

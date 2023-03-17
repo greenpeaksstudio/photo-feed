@@ -26,6 +26,7 @@ class SqlDelightFeedStore(
     }
 
     fun deleteCachedFeed() {
+        queries.clear()
     }
 }
 
