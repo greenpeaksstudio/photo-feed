@@ -118,6 +118,16 @@ class SqlDelightFeedStoreTests {
         }
     }
 
+    @Test
+    fun delete_hasNoSideEffectsOnEmptyCache() {
+        val sut = makeSut()
+
+        sut.deleteCachedFeed()
+
+        val receivedCache = sut.retrieve()
+        assertNull(receivedCache)
+    }
+
     // region Helpers
 
     private fun makeSut(): SqlDelightFeedStore {
