@@ -1,0 +1,17 @@
+import com.asturiancoder.photofeed.feed.cache.model.LocalFeedPhoto;
+import kotlin.collections.List;
+
+CREATE TABLE LocalFeedCache (
+    feed TEXT AS List<LocalFeedPhoto> NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+insert:
+INSERT INTO LocalFeedCache(feed, timestamp)
+VALUES (?, ?);
+
+retrieve:
+SELECT * FROM LocalFeedCache;
+
+clear:
+DELETE FROM LocalFeedCache;

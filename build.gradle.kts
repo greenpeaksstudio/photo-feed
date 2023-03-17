@@ -4,6 +4,7 @@ plugins {
     id("com.android.library").version("7.4.1").apply(false)
     kotlin("multiplatform").version(kotlinVersion).apply(false)
     kotlin("plugin.serialization").version(kotlinVersion).apply(false)
+    id("app.cash.sqldelight").version("2.0.0-alpha05").apply(false)
 
     // Static Analysis plugins
     id("com.diffplug.spotless").version("6.16.0")

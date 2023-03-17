@@ -4,6 +4,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("com.android.library")
+    id("app.cash.sqldelight")
 }
 
 kotlin {
@@ -23,6 +24,7 @@ kotlin {
 
     sourceSets {
         val ktorVersion = "2.2.4"
+        val sqlDelightVersion = "2.0.0-alpha05"
 
         /* Main source sets */
         val commonMain by getting {
@@ -36,6 +38,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+                implementation("app.cash.sqldelight:android-driver:$sqlDelightVersion")
             }
         }
 
@@ -45,6 +48,7 @@ kotlin {
         val iosMain by creating {
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                implementation("app.cash.sqldelight:native-driver:$sqlDelightVersion")
             }
         }
 
@@ -64,7 +68,11 @@ kotlin {
             }
         }
 
-        val androidUnitTest by getting
+        val androidUnitTest by getting {
+            dependencies {
+                implementation("app.cash.sqldelight:sqlite-driver:$sqlDelightVersion")
+            }
+        }
 
         val iosX64Test by getting
         val iosArm64Test by getting
@@ -87,5 +95,13 @@ android {
     defaultConfig {
         minSdk = 28
         targetSdk = 32
+    }
+}
+
+sqldelight {
+    databases {
+        create("PhotoFeedDB") {
+            packageName.set("com.asturiancoder.photofeed.feed.cache.db")
+        }
     }
 }
