@@ -157,7 +157,7 @@ class SqlDelightFeedStoreTests {
 
     // region Helpers
 
-    private fun makeSut(): SqlDelightFeedStore {
+    private fun makeSut(): FeedStore {
         val adapter = LocalFeedCache.Adapter(FeedColumnAdapter())
         val db = PhotoFeedDB(TestSqlDelightDriverFactory.create(), adapter)
 

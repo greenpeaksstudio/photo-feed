@@ -8,11 +8,11 @@ import com.asturiancoder.photofeed.util.Uuid
 
 class SqlDelightFeedStore(
     db: PhotoFeedDB,
-) {
+) : FeedStore {
 
     private val queries = db.photoFeedDBQueries
 
-    fun retrieve(): CachedFeed? {
+    override fun retrieve(): CachedFeed? {
         return queries.retrieve()
             .executeAsList()
             .map { localFeedCache ->
@@ -20,12 +20,12 @@ class SqlDelightFeedStore(
             }.firstOrNull()
     }
 
-    fun insert(feed: List<FeedPhoto>, timestamp: Long) {
+    override fun insert(feed: List<FeedPhoto>, timestamp: Long) {
         queries.clear()
         queries.insert(feed.toLocal(), timestamp)
     }
 
-    fun deleteCachedFeed() {
+    override fun deleteCachedFeed() {
         queries.clear()
     }
 }
