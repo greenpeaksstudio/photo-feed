@@ -16,9 +16,7 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun retrieve_deliversEmptyOnEmptyCache() {
-        val adapter = LocalFeedCache.Adapter(FeedColumnAdapter())
-        val db = PhotoFeedDB(TestSqlDelightDriverFactory.create(), adapter)
-        val sut = SqlDelightFeedStore(db)
+        val sut = makeSut()
 
         val receivedCache = sut.retrieve()
         assertNull(receivedCache)
@@ -26,9 +24,7 @@ class SqlDelightFeedStoreTests {
 
     @Test
     fun retrieve_hasNoSideEffectsOnEmptyCache() {
-        val adapter = LocalFeedCache.Adapter(FeedColumnAdapter())
-        val db = PhotoFeedDB(TestSqlDelightDriverFactory.create(), adapter)
-        val sut = SqlDelightFeedStore(db)
+        val sut = makeSut()
 
         var receivedCache = sut.retrieve()
         assertNull(receivedCache)
@@ -41,9 +37,7 @@ class SqlDelightFeedStoreTests {
     fun retrieve_deliversFoundValuesOnNonEmptyCache() {
         val feed = uniquePhotoFeed()
         val timestamp = Clock.System.now().epochSeconds
-        val adapter = LocalFeedCache.Adapter(FeedColumnAdapter())
-        val db = PhotoFeedDB(TestSqlDelightDriverFactory.create(), adapter)
-        val sut = SqlDelightFeedStore(db)
+        val sut = makeSut()
 
         sut.insert(feed, timestamp)
 
@@ -53,6 +47,13 @@ class SqlDelightFeedStoreTests {
     }
 
     // region Helpers
+
+    private fun makeSut(): SqlDelightFeedStore {
+        val adapter = LocalFeedCache.Adapter(FeedColumnAdapter())
+        val db = PhotoFeedDB(TestSqlDelightDriverFactory.create(), adapter)
+
+        return SqlDelightFeedStore(db)
+    }
 
     private fun uniquePhotoFeed(): List<FeedPhoto> =
         listOf(uniquePhoto(), uniquePhoto())
