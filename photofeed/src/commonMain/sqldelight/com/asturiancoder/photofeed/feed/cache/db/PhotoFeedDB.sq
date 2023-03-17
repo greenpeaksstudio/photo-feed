@@ -12,3 +12,6 @@ VALUES (?, ?);
 
 retrieve:
 SELECT * FROM LocalFeedCache;
+
+clear:
+DELETE FROM LocalFeedCache;

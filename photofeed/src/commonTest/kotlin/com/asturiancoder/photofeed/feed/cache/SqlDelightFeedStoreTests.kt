@@ -91,6 +91,23 @@ class SqlDelightFeedStoreTests {
         }
     }
 
+    @Test
+    fun insert_overridesPreviouslyInsertedCacheValues() {
+        val sut = makeSut()
+
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        sut.insert(feed, timestamp)
+
+        val latestFeed = uniquePhotoFeed()
+        val latestTimestamp = Clock.System.now().epochSeconds
+        sut.insert(latestFeed, latestTimestamp)
+
+        val receivedCache = sut.retrieve()
+
+        assertEquals(CachedFeed(latestFeed, latestTimestamp), receivedCache)
+    }
+
     // region Helpers
 
     private fun makeSut(): SqlDelightFeedStore {

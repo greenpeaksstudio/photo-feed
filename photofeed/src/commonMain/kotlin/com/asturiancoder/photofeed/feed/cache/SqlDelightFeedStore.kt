@@ -21,6 +21,7 @@ class SqlDelightFeedStore(
     }
 
     fun insert(feed: List<FeedPhoto>, timestamp: Long) {
+        queries.clear()
         queries.insert(feed.toLocal(), timestamp)
     }
 }
