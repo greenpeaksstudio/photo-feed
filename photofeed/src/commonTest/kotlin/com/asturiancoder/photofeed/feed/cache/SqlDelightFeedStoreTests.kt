@@ -76,6 +76,21 @@ class SqlDelightFeedStoreTests {
         }
     }
 
+    @Test
+    fun insert_deliversNoErrorOnNonEmptyCache() {
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        val sut = makeSut()
+
+        sut.insert(feed, timestamp)
+
+        try {
+            sut.insert(feed, timestamp)
+        } catch (exception: Exception) {
+            fail("Expected to insert without error, got $exception instead")
+        }
+    }
+
     // region Helpers
 
     private fun makeSut(): SqlDelightFeedStore {
