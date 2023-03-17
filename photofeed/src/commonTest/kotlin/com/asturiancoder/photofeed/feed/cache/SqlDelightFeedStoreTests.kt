@@ -11,6 +11,7 @@ import kotlinx.datetime.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.fail
 
 class SqlDelightFeedStoreTests {
 
@@ -60,6 +61,19 @@ class SqlDelightFeedStoreTests {
         val expectedCache = CachedFeed(feed, timestamp)
         assertEquals(expectedCache, firstReceivedCache)
         assertEquals(expectedCache, lastReceivedCache)
+    }
+
+    @Test
+    fun insert_deliversNoErrorOnEmptyCache() {
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        val sut = makeSut()
+
+        try {
+            sut.insert(feed, timestamp)
+        } catch (exception: Exception) {
+            fail("Expected to insert without error, got $exception instead")
+        }
     }
 
     // region Helpers
