@@ -24,6 +24,15 @@ class FeedColumnAdapterTests {
         assertEquals(emptyList(), decodedValue)
     }
 
+    @Test
+    fun decode_deliversLocalFeedFromString() {
+        val sut = FeedColumnAdapter()
+
+        val decodedValue = sut.decode(encodedFeed)
+
+        assertEquals(localFeed, decodedValue)
+    }
+
     // region Helpers
 
     private val encodedFeed =
