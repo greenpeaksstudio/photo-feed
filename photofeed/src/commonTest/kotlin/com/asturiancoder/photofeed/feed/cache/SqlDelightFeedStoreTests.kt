@@ -128,6 +128,20 @@ class SqlDelightFeedStoreTests {
         assertNull(receivedCache)
     }
 
+    @Test
+    fun delete_deliversNoErrorOnNonEmptyCache() {
+        val sut = makeSut()
+        val feed = uniquePhotoFeed()
+        val timestamp = Clock.System.now().epochSeconds
+        sut.insert(feed, timestamp)
+
+        try {
+            sut.deleteCachedFeed()
+        } catch (exception: Exception) {
+            fail("Expected to delete without error, got $exception instead")
+        }
+    }
+
     // region Helpers
 
     private fun makeSut(): SqlDelightFeedStore {
