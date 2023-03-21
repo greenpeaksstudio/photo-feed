@@ -6,11 +6,6 @@ import com.asturiancoder.photofeed.feed.api.model.HttpStatusCode
 import com.asturiancoder.photofeed.feed.feature.FeedLoader
 import com.asturiancoder.photofeed.feed.feature.FeedPhoto
 import com.asturiancoder.photofeed.util.Uuid
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -151,7 +146,7 @@ class RemoteFeedRepositoryTests {
         likes: Int,
         authorName: String,
         authorImageUrl: String,
-    ): Pair<FeedPhoto, JsonObject> {
+    ): Pair<FeedPhoto, String> {
         val photo = FeedPhoto(
             id = id,
             description = description,
@@ -161,28 +156,26 @@ class RemoteFeedRepositoryTests {
             author = FeedPhoto.Author(name = authorName, imageUrl = authorImageUrl),
         )
 
-        val json = JsonObject(
-            mapOf(
-                "id" to JsonPrimitive(id.uuidString),
-                "description" to JsonPrimitive(description),
-                "location" to JsonPrimitive(location),
-                "url" to JsonPrimitive(url),
-                "likes" to JsonPrimitive(likes),
-                "author" to JsonObject(
-                    mapOf(
-                        "name" to JsonPrimitive(authorName),
-                        "image_url" to JsonPrimitive(authorImageUrl),
-                    ),
-                ),
-            ).filter { it.value !is JsonNull },
-        )
+        val json = "\"id\":\"${id.uuidString}\"," +
+            (description?.let { "\"description\":\"$it\"," } ?: "") +
+            (location?.let { "\"location\":\"$it\"," } ?: "") +
+            "\"url\":\"$url\"," +
+            "\"likes\":$likes," +
+            "\"author\":{" +
+            "\"name\":\"$authorName\"," +
+            "\"image_url\":\"$authorImageUrl\"}"
 
         return photo to json
     }
 
-    private fun makePhotosJson(photos: List<JsonObject>): String {
-        val root = mapOf("photos" to photos)
-        return Json.encodeToString(root)
+    private fun makePhotosJson(photos: List<String>): String {
+        var photoList = ""
+        photos.forEach { photo ->
+            photoList += "{$photo},"
+        }
+        photoList = photoList.dropLast(1)
+
+        return "{\"photos\":[$photoList]}"
     }
 
     private inner class HttpClientSpy : HttpClient {
