@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Photo_Feed"
 include(":photofeed")
+include(":apps:android")
