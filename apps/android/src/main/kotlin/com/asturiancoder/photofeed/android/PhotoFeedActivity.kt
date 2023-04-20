@@ -3,10 +3,9 @@ package com.asturiancoder.photofeed.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.asturiancoder.photofeed.android.feed.ui.FeedPhotoUiState
+import com.asturiancoder.photofeed.android.feed.ui.FeedScreen
+import com.asturiancoder.photofeed.android.feed.ui.FeedUiState
 import com.asturiancoder.photofeed.android.ui.theme.PhotoFeedTheme
 
 class PhotoFeedActivity : ComponentActivity() {
@@ -15,24 +14,17 @@ class PhotoFeedActivity : ComponentActivity() {
 
         setContent {
             PhotoFeedTheme {
-                Greeting("Android")
+                val feed = getFeed()
+                val state = FeedUiState(feed = feed)
+                FeedScreen(feedUiState = state)
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-    )
-}
+    private fun getFeed() = List(10) {
+        val location = if (it % 3 == 0) "A location $it" else null
+        val description = if (it % 2 == 0) "A description $it" else null
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PhotoFeedTheme {
-        Greeting("Android")
+        FeedPhotoUiState(authorName = "Author $it", location = location, description = description)
     }
 }

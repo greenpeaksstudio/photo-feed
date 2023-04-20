@@ -4,7 +4,7 @@ plugins {
 
     id("com.android.application").version(androidPluginVersion).apply(false)
     id("com.android.library").version(androidPluginVersion).apply(false)
-    id("org.jetbrains.kotlin.android").version(kotlinVersion)apply (false)
+    kotlin("android").version(kotlinVersion).apply(false)
     kotlin("multiplatform").version(kotlinVersion).apply(false)
     kotlin("plugin.serialization").version(kotlinVersion).apply(false)
     id("app.cash.sqldelight").version("2.0.0-alpha05").apply(false)
