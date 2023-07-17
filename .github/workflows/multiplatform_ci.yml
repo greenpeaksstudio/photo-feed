@@ -11,11 +11,15 @@ on:
       - '**.md'
       - 'docs/**'
 
-jobs:
+concurrency:
+  group: multiplatform-${{ github.ref }}
+  cancel-in-progress: true
 
-  build:
-    name: Multiplatform CI
-    runs-on: macos-latest
+jobs:
+  check:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -25,14 +29,63 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'adopt'
-          cache: 'gradle'
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Run Spotless
+        run: ./gradlew spotlessCheck --continue
+
+      - name: Run detekt
+        run: ./gradlew detekt --continue
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v2
+        if: ${{ always() }}
+        with:
+          sarif_file: photofeed/build/reports/
+
+  build:
+    name: Build
+    runs-on: macos-latest
+    needs: [ check ]
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
       - name: Build
         run: ./gradlew photofeed:assemble --continue
+
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: macos-latest
+    needs: [ build ]
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Unit tests
         run: ./gradlew photofeed:allTests --continue
