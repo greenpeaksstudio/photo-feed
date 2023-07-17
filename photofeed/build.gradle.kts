@@ -90,7 +90,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.asturiancoder.photofeed"
+    namespace = "com.greenpeaks.photofeed"
     compileSdk = 32
     defaultConfig {
         minSdk = 28
@@ -101,7 +101,7 @@ android {
 sqldelight {
     databases {
         create("PhotoFeedDB") {
-            packageName.set("com.asturiancoder.photofeed.feed.cache.db")
+            packageName.set("com.greenpeaks.photofeed.feed.cache.db")
         }
     }
 }

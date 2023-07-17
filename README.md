@@ -1,11 +1,11 @@
 # Photo Feed
 
-[![Multiplatform CI](https://github.com/asturiancoder/photo-feed/actions/workflows/multiplatform_ci.yml/badge.svg)](https://github.com/asturiancoder/photo-feed/actions/workflows/multiplatform_ci.yml)
+[![Multiplatform CI](https://github.com/greenpeaksstudio/photo-feed/actions/workflows/multiplatform_ci.yml/badge.svg)](https://github.com/greenpeaksstudio/photo-feed/actions/workflows/multiplatform_ci.yml)
 
 ## App Architecture
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/asturiancoder/photo-feed/main/docs/images/architecture.png" />
+    <img src="https://raw.githubusercontent.com/greenpeaksstudio/photo-feed/main/docs/images/architecture.png" />
 </p>
 
 ## Coding Style
@@ -23,7 +23,7 @@ The project has a Git hook you can install to run the spotless check on pre-comm
 
 ## License
 ```
-Copyright 2023 Asturian Coder
+Copyright 2023 Green Peaks Studio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
